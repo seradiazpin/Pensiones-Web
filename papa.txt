@@ -284,15 +284,7 @@ Public Sub APORTES()
     valorfinalpension = valorfinalpensionaportes
 End Sub
 
-Public Function BUSCAIPC(año As Integer, Optional factor As Variant)
-    For k = 2 To 100
-        If Worksheets("TABLA_IPC").Cells(k, "A") = año Then
-            BUSCAIPC = Worksheets("TABLA_IPC").Cells(k, "B")
-            Exit Function
-        End If
-    Next
 
-End Function
 
 Public Sub MONTOPENSION10()
     With Worksheets("TABLAS")
