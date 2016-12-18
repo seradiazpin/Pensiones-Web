@@ -1,6 +1,7 @@
 <ul>
     <li ng-repeat="persona in personasCtrl.personas">
-        <!--<a ui-sref="personas.medals({sportName:sport})">{{sport}}</a>-->
-        {{persona}}
+        <a ui-sref="personas.id({idPersona:persona})">{{persona}}</a>
     </li>
 </ul>
+
+<div ui-view></div>

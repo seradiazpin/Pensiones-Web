@@ -315,3 +315,5 @@ console.log("------------------------------\n\n\nDATOS");
 for(let i = 0;i<pepe.datosPension.length;i++){
     console.log(pepe.datosPension[i].toString());
 }
+
+console.log(pepe.datosPension);
