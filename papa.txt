@@ -150,6 +150,7 @@ If semanastr2 >= 750 Then
     Exit Sub
 End If 'fin if semanastr >= 750
 End Sub
+
 Public Sub PRIVADO()
  'APORTES HECHOS POR FUNCIONARIOS PRIVADOS
 
@@ -411,6 +412,7 @@ porcentajel797 = porcentajel797 * 100
 factorpensionl797 = porcentajel797 - (0.5 * numerosmmlv)
 valorfinalpensionl797 = (promedioibl10 * factorpensionl797) / 100
 End Sub
+
 Public Sub ULTIMOAÑO()
     'SI EL TIPO DE APORTE ES PRIVADO EJECUTA ESTE PROCEDIMIENTO PARA DETERMINARL EL PROMEDIO DEL IBL
     'DEL  ÚLTIMO AÑO
