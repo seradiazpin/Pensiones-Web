@@ -37,7 +37,7 @@ class DatosDecision{
     }
     toString(){
         return '\nedad1994: '+ this.edad1994 + '\ntotalSemanasCotizadas: '+ this.totalSemanasCotizadas +
-                '\nsemanas1994'+this.semanas1994 + '\nsemanas2005: '+this.semanas2005;
+                '\nsemanas1994: '+this.semanas1994 + '\nsemanas2005: '+this.semanas2005;
     }
 }
 
@@ -72,7 +72,7 @@ class DatosLiquidacion{
     toString(){
         return '\npromedioIBLtodaVida: '+this.pIBLtv + '\npromedioIBLultimos10years: '+this.pIBL10A +
             '\npromedioIBLultimoYear: '+this.pIBLuA +'\nMonto:'+this.monto+'\nMontoLey797: '+this.montoLey+
-            '\nNumeroSalariosMinimos: '+this.nSalariosMin + '\nValorPensionDecreto758: '+this.valorPensionDecreto +
+            '%\nNumeroSalariosMinimos: '+this.nSalariosMin + '\nValorPensionDecreto758: '+this.valorPensionDecreto +
             '\nValorPensionley797: '+this.valorPensionLey + '\nvalorPensionPublicos: '+this.valorPensionPublicos +
             '\nValorPensionAportes: '+ this.valorPensionAportes + '\nFechaCumplimiento: '+this.fechaCumplimiento;
     }
@@ -106,8 +106,8 @@ class LiquidadorPension{
         this.persona = persona || new Persona("nombre", 1234, "Masculino", "NOREGIMEN");
         this.datosDecision = this.persona.datosDecision;
         this.datosLiquidacion = this.persona.datosLiquidacion;
-        this.fechatr = "4/1/1994";
-        this.fechatr2 = "7/25/2003";
+        this.fechatr = "1/4/1994";
+        this.fechatr2 = "25/7/2003";
         this.regimentr = false;
         this.ipcData = {
             "1968": 785.70175914,
@@ -167,146 +167,146 @@ class LiquidadorPension{
         ];
         this.leydata = {
             2004: [
-                [1.050, 1.099, 0.67],
-                [1.100, 1.149, 0.69],
-                [1.150, 1.199, 0.71],
-                [1.200, 1.249, 0.73],
-                [1.250, 1.299, 0.76],
-                [1.300, 1.349, 0.79],
-                [1.350, 1.399, 0.82],
-                [1.400, 0, 0.85]
+                [1050, 1099, 0.67],
+                [1100, 1149, 0.69],
+                [1150, 1199, 0.71],
+                [1200, 1249, 0.73],
+                [1250, 1299, 0.76],
+                [1300, 1349, 0.79],
+                [1350, 1399, 0.82],
+                [1400, 0, 0.85]
             ],
             2005: [
-                [1.100, 1.149, 0.665],
-                [1.150, 1.199, 0.680],
-                [1.200, 1.249, 0.695],
-                [1.250, 1.299, 0.710],
-                [1.300, 1.349, 0.725],
-                [1.350, 1.399, 0.740],
-                [1.400, 1.449, 0.755],
-                [1.450, 1.499, 0.770],
-                [1.500, 1.549, 0.785],
+                [1100, 1149, 0.665],
+                [1150, 1199, 0.680],
+                [1200, 1249, 0.695],
+                [1250, 1299, 0.710],
+                [1300, 1349, 0.725],
+                [1350, 1399, 0.740],
+                [1400, 1449, 0.755],
+                [1450, 1499, 0.770],
+                [1500, 1549, 0.785],
                 [1550, 0, 0.800]
             ],
             2006: [
-                [1.125, 1.174, 0.665],
-                [1.175, 1.224, 0.680],
-                [1.225, 1.274, 0.695],
-                [1.275, 1.324, 0.710],
-                [1.325, 1.374, 0.725],
-                [1.375, 1.424, 0.740],
-                [1.425, 1.474, 0.755],
-                [1.475, 1.524, 0.770],
-                [1.525, 1.574, 0.785],
-                [1.575, 0, 0.800]
+                [1125, 1174, 0.665],
+                [1175, 1224, 0.680],
+                [1225, 1274, 0.695],
+                [1275, 1324, 0.710],
+                [1325, 1374, 0.725],
+                [1375, 1424, 0.740],
+                [1425, 1474, 0.755],
+                [1475, 1524, 0.770],
+                [1525, 1574, 0.785],
+                [1575, 0, 0.800]
             ],
             2007: [
-                [1.150, 1.199, 0.665],
-                [1.200, 1.249, 0.680],
-                [1.250, 1.299, 0.695],
-                [1.300, 1.349, 0.710],
-                [1.350, 1.399, 0.725],
-                [1.400, 1.449, 0.740],
-                [1.450, 1.499, 0.755],
-                [1.500, 1.549, 0.770],
-                [1.550, 1.599, 0.785],
-                [1.600, 0, 0.800]
+                [1150, 1199, 0.665],
+                [1200, 1249, 0.680],
+                [1250, 1299, 0.695],
+                [1300, 1349, 0.710],
+                [1350, 1399, 0.725],
+                [1400, 1449, 0.740],
+                [1450, 1499, 0.755],
+                [1500, 1549, 0.770],
+                [1550, 1599, 0.785],
+                [1600, 0, 0.800]
             ],
             2008: [
-                [1.175, 1.224, 0.665],
-                [1.225, 1.274, 0.680],
-                [1.275, 1.324, 0.695],
-                [1.325, 1.374, 0.710],
-                [1.375, 1.424, 0.725],
-                [1.425, 1.474, 0.740],
-                [1.475, 1.524, 0.755],
-                [1.525, 1.574, 0.770],
-                [1.575, 1.624, 0.785],
-                [1.625, 0, 0.800]
+                [1175, 1224, 0.665],
+                [1225, 1274, 0.680],
+                [1275, 1324, 0.695],
+                [1325, 1374, 0.710],
+                [1375, 1424, 0.725],
+                [1425, 1474, 0.740],
+                [1475, 1524, 0.755],
+                [1525, 1574, 0.770],
+                [1575, 1624, 0.785],
+                [1625, 0, 0.800]
             ],
             2009: [
-                [1.200, 1.249, 0.665],
-                [1.250, 1.299, 0.680],
-                [1.300, 1.349, 0.695],
-                [1.350, 1.399, 0.710],
-                [1.400, 1.449, 0.725],
-                [1.450, 1.499, 0.740],
-                [1.500, 1.549, 0.755],
-                [1.550, 1.599, 0.770],
-                [1.600, 1.649, 0.785],
-                [1.650, 0, 0.800]
+                [1200, 1249, 0.665],
+                [1250, 1299, 0.680],
+                [1300, 1349, 0.695],
+                [1350, 1399, 0.710],
+                [1400, 1449, 0.725],
+                [1450, 1499, 0.740],
+                [1500, 1549, 0.755],
+                [1550, 1599, 0.770],
+                [1600, 1649, 0.785],
+                [1650, 0, 0.800]
             ],
             2010: [
-                [1.125, 1.174, 0.665],
-                [1.175, 1.224, 0.680],
-                [1.225, 1.274, 0.695],
-                [1.275, 1.324, 0.710],
-                [1.325, 1.374, 0.725],
-                [1.375, 1.424, 0.740],
-                [1.425, 1.474, 0.755],
-                [1.475, 1.524, 0.770],
-                [1.525, 1.574, 0.785],
-                [1.575, 1.624, 0.800]
+                [1125, 1174, 0.665],
+                [1175, 1224, 0.680],
+                [1225, 1274, 0.695],
+                [1275, 1324, 0.710],
+                [1325, 1374, 0.725],
+                [1375, 1424, 0.740],
+                [1425, 1474, 0.755],
+                [1475, 1524, 0.770],
+                [1525, 1574, 0.785],
+                [1575, 1624, 0.800]
             ],
             2011: [
-                [1.250, 1.299, 0.665],
-                [1.300, 1.349, 0.680],
-                [1.350, 1.399, 0.695],
-                [1.400, 1.449, 0.710],
-                [1.450, 1.499, 0.725],
-                [1.500, 1.549, 0.740],
-                [1.550, 1.599, 0.755],
-                [1.600, 1.649, 0.770],
-                [1.650, 1.699, 0.785],
-                [1.700, 1.749, 0.800]
+                [1250, 1299, 0.665],
+                [1300, 1349, 0.680],
+                [1350, 1399, 0.695],
+                [1400, 1449, 0.710],
+                [1450, 1499, 0.725],
+                [1500, 1549, 0.740],
+                [1550, 1599, 0.755],
+                [1600, 1649, 0.770],
+                [1650, 1699, 0.785],
+                [1700, 1749, 0.800]
             ],
             2012: [
-                [1.125, 1.174, 0.665],
-                [1.175, 1.224, 0.680],
-                [1.225, 1.274, 0.695],
-                [1.275, 1.324, 0.710],
-                [1.325, 1.374, 0.725],
-                [1.375, 1.424, 0.740],
-                [1.425, 1.474, 0.755],
-                [1.475, 1.524, 0.770],
-                [1.525, 1.574, 0.785],
-                [1.575, 1.624, 0.800]
+                [1125, 1174, 0.665],
+                [1175, 1224, 0.680],
+                [1225, 1274, 0.695],
+                [1275, 1324, 0.710],
+                [1325, 1374, 0.725],
+                [1375, 1424, 0.740],
+                [1425, 1474, 0.755],
+                [1475, 1524, 0.770],
+                [1525, 1574, 0.785],
+                [1575, 1624, 0.800]
             ],
             2013: [
-                [1.125, 1.174, 0.665],
-                [1.175, 1.224, 0.680],
-                [1.225, 1.274, 0.695],
-                [1.275, 1.324, 0.710],
-                [1.325, 1.374, 0.725],
-                [1.375, 1.424, 0.740],
-                [1.425, 1.474, 0.755],
-                [1.475, 1.524, 0.770],
-                [1.525, 1.574, 0.785],
-                [1.575, 1.624, 0.800]
+                [1125, 1174, 0.665],
+                [1175, 1224, 0.680],
+                [1225, 1274, 0.695],
+                [1275, 1324, 0.710],
+                [1325, 1374, 0.725],
+                [1375, 1424, 0.740],
+                [1425, 1474, 0.755],
+                [1475, 1524, 0.770],
+                [1525, 1574, 0.785],
+                [1575, 1624, 0.800]
             ],
             2014: [
-                [1.325, 1.374, 0.665],
-                [1.375, 1.424, 0.680],
-                [1.425, 1.474, 0.695],
-                [1.475, 1.524, 0.710],
-                [1.525, 1.574, 0.725],
-                [1.575, 1.624, 0.740],
-                [1.625, 1.674, 0.755],
-                [1.675, 1.724, 0.770],
-                [1.725, 1.774, 0.785],
-                [1.775, 0, 0.800]
+                [1325, 1374, 0.665],
+                [1375, 1424, 0.680],
+                [1425, 1474, 0.695],
+                [1475, 1524, 0.710],
+                [1525, 1574, 0.725],
+                [1575, 1624, 0.740],
+                [1625, 1674, 0.755],
+                [1675, 1724, 0.770],
+                [1725, 1774, 0.785],
+                [1775, 0, 0.800]
             ],
             2015: [
-                [1.350, 1.399, 0.665],
-                [1.400, 1.449, 0.680],
-                [1.450, 1.499, 0.695],
-                [1.500, 1.549, 0.710],
-                [1.550, 1.599, 0.725],
-                [1.600, 1.649, 0.740],
-                [1.650, 1.699, 0.755],
-                [1.700, 1.749, 0.770],
-                [1.750, 1.799, 0.785],
-                [1.800, 0, 0.800]
+                [1350, 1399, 0.665],
+                [1400, 1449, 0.680],
+                [1450, 1499, 0.695],
+                [1500, 1549, 0.710],
+                [1550, 1599, 0.725],
+                [1600, 1649, 0.740],
+                [1650, 1699, 0.755],
+                [1700, 1749, 0.770],
+                [1750, 1799, 0.785],
+                [1800, 0, 0.800]
             ]
         };
         this.smv = {
@@ -332,7 +332,9 @@ class LiquidadorPension{
             2010: 515000.0,
             2011: 535600.0,
             2012: 566700.0,
-            2013: 589500.0
+            2013: 589500.0,
+            2014: 616000.0,
+            2015: 644350.0
         };
     }
     calcularPension(){
@@ -412,7 +414,7 @@ class LiquidadorPension{
                     }
                     if(this.mayorFecha(moment(this.fechatr,"DD/MM/YYYY"),moment(row.fechaDesde,"DD/MM/YYYY")) && !this.mayorIgualFecha(moment(this.fechatr,"DD/MM/YYYY"),moment(row.fechaHasta,"DD/MM/YYYY"))){
                         this.datosDecision.semanas1994 = lastRow.semanasAcumuladas;
-                        this.datosDecision.semanas1994 += (moment(this.fechatr,"DD/MM/YYYY").diff(moment(row.fechaDesde,"DD/MM/YYYY"),"days")/7);
+                        this.datosDecision.semanas1994 += ((moment(this.fechatr,"DD/MM/YYYY").diff(moment(row.fechaDesde,"DD/MM/YYYY"),"days"))/7);
                         break;
                     }
                 }
@@ -465,7 +467,7 @@ class LiquidadorPension{
     }
 
     liquidacion(){
-        this.persona.datosDecision.totalSemanasCotizadas = this.persona.datosPension[this.persona.datosPension.length];
+        this.persona.datosDecision.totalSemanasCotizadas = this.persona.datosPension[this.persona.datosPension.length-1].semanasAcumuladas;
         switch (this.persona.tipoCotizacion){
             case 1:
                 this.privado();
@@ -482,6 +484,7 @@ class LiquidadorPension{
                 break;
         }
     }
+
     //Aportes hechos por funcionarios privados
     privado(){
         if(this.persona.datosDecision.totalSemanasCotizadas >= 1250){
@@ -490,8 +493,10 @@ class LiquidadorPension{
             let valorpensiontv = this.persona.datosLiquidacion.pIBLtv * 0.9;
             let valorpension10 = this.persona.datosLiquidacion.pIBL10A * 0.9;
             if(valorpensiontv >= valorpension10){
+                this.datosLiquidacion.valorPensionDecreto = valorpensiontv;
                 this.persona.regimen = "Decreto 758 de 1990 - IBL Toda la Vida";
             }else{
+                this.datosLiquidacion.valorPensionDecreto = valorpension10;
                 this.persona.regimen = "Decreto 758 de 1990 - IBL 10 años >= 1250 semanas";
             }
         }else{
@@ -538,14 +543,16 @@ class LiquidadorPension{
                 totalibl10 = totalibl10 - row.IBLtlv + row.IBL10Y;
                 break;
             }
-            this.persona.datosLiquidacion.pIBL10A = totalibl10/diasDiezYears;
         }
+        this.persona.datosLiquidacion.pIBL10A = totalibl10/diasDiezYears;
     }
     montoPension10(){
         //todo quite valorpension10 por si acaso
-        let porcentajepension =0;
+        let porcentajepension = 0;
         for(let i = 0;i<this.decreto748.length;i++){
             let row = this.decreto748[i];
+            console.log("porcentaje "+row);
+            console.log("SSS"+this.datosDecision.totalSemanasCotizadas)
             if(this.datosDecision.totalSemanasCotizadas >= row[0] && this.datosDecision.totalSemanasCotizadas <= row[1]){
                 porcentajepension = row[2];
                 break;
@@ -559,17 +566,20 @@ class LiquidadorPension{
     ley797(){
         let yeardata = this.leydata[moment(this.persona.fechaLiquidacion,"DD/MM/YYYY").year()];
         let porcentajeley = 0;
-        if(this.datosDecision.totalSemanasCotizadas >= yeardata[0] && this.datosDecision.totalSemanasCotizadas <=yeardata[1]){
-            porcentajeley = yeardata[2];
+        for(let i = 0;i< yeardata.length;i++){
+            if(this.datosDecision.totalSemanasCotizadas >= yeardata[i][0] && this.datosDecision.totalSemanasCotizadas <=yeardata[i][1]){
+                porcentajeley = yeardata[i][2];
+                break;
+            }
         }
         if(porcentajeley ===0){
             return 0;
         }
+
         this.datosLiquidacion.nSalariosMin = this.datosLiquidacion.pIBL10A/this.smv[moment(this.persona.fechaLiquidacion,"DD/MM/YYYY").year()];
         porcentajeley = porcentajeley * 100;
-        this.datosLiquidacion.monto  = porcentajeley - (0.5 * this.datosLiquidacion.nSalariosMin);
-        this.datosLiquidacion.montoLey = (this.datosLiquidacion.pIBL10A * this.datosLiquidacion.monto) / 100;
-
+        this.datosLiquidacion.montoLey  = porcentajeley - (0.5 * this.datosLiquidacion.nSalariosMin);
+        this.datosLiquidacion.valorPensionLey = (this.datosLiquidacion.pIBL10A * this.datosLiquidacion.montoLey) / 100;
     }
     publico(){
         this.diezYears();
@@ -610,15 +620,20 @@ class LiquidadorPension{
         this.datosLiquidacion.valorPensionDecreto = this.datosLiquidacion.valorPensionAportes;
     }
     resumen(){
+        if(this.persona.fechaNacimiento === "Femenino"){
+            this.datosLiquidacion.fechaCumplimiento = moment(this.persona.fechaNacimiento,"DD/MM/YYYY").add(55, 'years').toString();
+        }
+        if(this.persona.genero === "Masculino"){
+            this.datosLiquidacion.fechaCumplimiento = moment(this.persona.fechaNacimiento,"DD/MM/YYYY").add(60, 'years').toString();
+        }
         for(let i = 0;i<this.persona.datosPension.length;i++){
-            //console.log("|"+i+this.persona.datosPension[i].toString());
-            console.log(this.persona.toString());git
+            console.log("|"+i+this.persona.datosPension[i].toString());
+            //console.log(this.persona.toString());
         }
     }
 }
 
 let pepe = new Persona("Pepe","123412312","Masculino","NOREGIMEN","2/11/1952",1,"27/02/14");
-console.log(pepe.toString());
 let dataExample = [
     ["9/02/71","31/12/71","$ 1.290,00 "],
     ["1/01/72","30/06/72","$ 1.290,00 "],
@@ -706,11 +721,9 @@ for(let i = 0;i<dataExample.length;i++){
     pepe.datosPension.push(new Informacion(fehaDesde,fechaHasta,ipc));
 }
 console.log("DATOS");
-for(let i = 0;i<pepe.datosPension.length;i++){
-    console.log("|"+i+pepe.datosPension[i].toString());
-}
 
 let lq = new LiquidadorPension(pepe);
 lq.calcularPension();
 console.log("------------------------------\n\n\nDATOS");
+console.log(pepe.toString());
 
