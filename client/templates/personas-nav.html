@@ -1,7 +1,30 @@
-<ul>
-    <li ng-repeat="persona in personasCtrl.personas">
-        <a ui-sref="personas.id({idPersona:persona})">{{persona}}</a>
-    </li>
-</ul>
+<div class="row">
+    <div class="col-lg-12">
+        <h1>Usuarios en la base de datos</h1>
+        <p>Lista de usuarios disponibles desde la base de datos.</p>
+        <!--<a href="#menu-toggle" class="btn btn-default" id="menu-toggle">Toggle Menu</a>-->
 
-<div ui-view></div>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Documento</th>
+                <th>Nombre</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="persona in personasCtrl.personas">
+                <td>{{persona[1]}}</td>
+                <td>{{persona[0]}}</td>
+                <td>
+                    <a class="btn btn-default" ui-sref="id({idPersona:persona[1]})">
+                        <i class="glyphicon glyphicon-edit"> Editar</i>
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <a class="btn btn-info">Agregar</a>
+    </div>
+</div>

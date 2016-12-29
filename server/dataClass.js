@@ -1,8 +1,9 @@
 /**
  * Created by sergiodiazpinilla on 15/12/16.
  */
-
+"use strict";
 let moment = require("moment");
+let mongoUtil = require("./mongoUtil");
 let S = require('string');
 class Persona{
     constructor(nombre, documento, genero, regimen,fechaNacimiento,tipoCotizacion,fecchaLiquidacion){
@@ -626,10 +627,10 @@ class LiquidadorPension{
         if(this.persona.genero === "Masculino"){
             this.datosLiquidacion.fechaCumplimiento = moment(this.persona.fechaNacimiento,"DD/MM/YYYY").add(60, 'years').toString();
         }
-        for(let i = 0;i<this.persona.datosPension.length;i++){
-            console.log("|"+i+this.persona.datosPension[i].toString());
+        //for(let i = 0;i<this.persona.datosPension.length;i++){
+            //console.log("|"+i+this.persona.datosPension[i].toString());
             //console.log(this.persona.toString());
-        }
+        //}
     }
 }
 
@@ -720,10 +721,19 @@ for(let i = 0;i<dataExample.length;i++){
     let ipc = S(dataExample[i][2]).replaceAll("$ ","").replaceAll(".","").replaceAll(",",".");
     pepe.datosPension.push(new Informacion(fehaDesde,fechaHasta,ipc));
 }
-console.log("DATOS");
+//console.log("DATOS");
 
 let lq = new LiquidadorPension(pepe);
 lq.calcularPension();
-console.log("------------------------------\n\n\nDATOS");
-console.log(pepe.toString());
+//console.log("------------------------------\n\n\nDATOS");
+//console.log(pepe.toString());
 
+
+mongoUtil.connect();
+setTimeout(towait,3000);
+function towait() {
+    mongoUtil.guardarPersona(pepe);
+}
+
+
+//mongoUtil.guardarPersona(pepe);

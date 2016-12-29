@@ -1,1 +1,36 @@
-<div ui-grid="{data:personCtrl.personData.datosPension}" class="grid"></div>
+<div class="row">
+    <div class="col-lg-12">
+        <h1>{{personCtrl.persona.nombre}}</h1>
+        <div class="row well">
+            <h3>Datos desicion</h3>
+            <p><b>Edad 1994:</b> {{personCtrl.persona.datosDecision.edad1994}}</p>
+            <p><b>Semanas cotizadas :</b> {{personCtrl.persona.datosDecision.totalSemanasCotizadas}}</p>
+            <p><b>Semanas al 1994: </b>{{personCtrl.persona.datosDecision.semanas1994}}</p>
+            <p><b>Semanas al 2005: </b>{{personCtrl.persona.datosDecision.semanas2005}}</p>
+        </div>
+            <div class="row well">
+                <h3>Datos Liquidacion</h3>
+                <div class="col-lg-6">
+                    <p><b>promedioIBLtodaVida : </b>{{personCtrl.persona.datosLiquidacion.pIBLtv}}</p>
+                    <p><b>promedioIBLultimos10years : </b>{{personCtrl.persona.datosLiquidacion.pIBL10A}} </p>
+                    <p><b>promedioIBLultimoYear : </b>{{personCtrl.persona.datosLiquidacion.pIBLuA}} </p>
+                    <p><b>Monto:</b>{{personCtrl.persona.datosLiquidacion.monto}}</p>
+                    <p><b>MontoLey797 : </b>{{personCtrl.persona.datosLiquidacion.montoLey}}</p>
+                    <p><b>NumeroSalariosMinimos: </b>{{personCtrl.persona.datosLiquidacion.nSalariosMin}}</p>
+                </div>
+                <div class="col-lg-6">
+                    <p><b>ValorPensionDecreto758 : </b>{{personCtrl.persona.datosLiquidacion.valorPensionDecreto}} </p>
+                    <p><b>ValorPensionley797 : </b>{{personCtrl.persona.datosLiquidacion.valorPensionLey}}</p>
+                    <p><b>valorPensionPublicos : </b>{{personCtrl.persona.datosLiquidacion.valorPensionPublicos}} </p>
+                    <p><b>ValorPensionAportes : </b> {{personCtrl.persona.datosLiquidacion.valorPensionAportes}}</p>
+                    <p><b>FechaCumplimiento : </b>{{personCtrl.persona.datosLiquidacion.fechaCumplimiento}}</p>
+                </div>
+            </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div ui-grid="{data:personCtrl.persona.datosPension}" class="grid"></div>
+    </div>
+</div>
