@@ -1,0 +1,168 @@
+<div class="row pading-top">
+<form class="form-horizontal" id="contact_form" ng-submit="nuevaPersonaCtrl.savePersona(persona)">
+    <!-- Form Name -->
+    <h3>Informacion Usuario</h3>
+    <!-- Form Columns-->
+    <div class="row">
+        <div class="col-lg-6">
+        <!--nombre, documento, genero, regimen,fechaNacimiento,tipoCotizacion,fecchaLiquidacion-->
+
+        <legend>Datos del usuario</legend>
+        <!-- Text input Nombre-->
+
+        <div class="form-group">
+            <label class="col-md-4 control-label">Nombre</label>
+            <div class="col-md-8 inputGroupContainer">
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                    <input  name="first_name" placeholder="Nombre" class="form-control"  type="text" required ng-model="persona.nombre">
+                </div>
+            </div>
+        </div>
+
+        <!-- Text input documento-->
+
+        <div class="form-group">
+            <label class="col-md-4 control-label">Documento</label>
+            <div class="col-md-8 inputGroupContainer">
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="glyphicon glyphicon-credit-card"></i></span>
+                    <input name="phone" placeholder="1234567890" class="form-control" type="number" required ng-model="persona.documento">
+                </div>
+            </div>
+        </div>
+
+        <!-- radio checks Genero -->
+        <div class="form-group">
+            <label class="col-md-4 control-label">Genero</label>
+            <div class="col-md-8">
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="hosting" value="Masculino" required ng-model="persona.genero"/> Masculino
+                    </label>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="hosting" value="Femenino" required ng-model="persona.genero"/> Femenino
+                    </label>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+        <div class="form-group">
+            <label class="col-md-4 control-label">Fecha Nacimiento</label>
+            <div class="col-md-8 inputGroupContainer">
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="glyphicon glyphicon-credit-card"></i></span>
+                    <input type="date" name="bday" class="form-control" required ng-model="persona.fechaNacimiento"/>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Text input-->
+        <div class="form-group">
+            <label class="col-md-4 control-label">E-Mail</label>
+            <div class="col-md-8 inputGroupContainer">
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="glyphicon glyphicon-envelope"></i></span>
+                    <input name="email" placeholder="E-Mail" class="form-control"  type="text" ng-model="persona.email">
+                </div>
+            </div>
+        </div>
+
+        <!-- Text area -->
+        <div class="form-group">
+            <label class="col-md-4 control-label">Anotaciones</label>
+            <div class="col-md-8 inputGroupContainer">
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="glyphicon glyphicon-pencil"></i></span>
+                    <textarea class="form-control"  rows="6"name="comment" placeholder="Informacion de interes de la persona" ng-model="persona.anotaciones"></textarea>
+                </div>
+            </div>
+        </div>
+            <div class="row" ng-class="{'no-visible':!nuevaPersonaCtrl.errorData.continuar, 'display-el':nuevaPersonaCtrl.errorData.continuar,}">
+                <div class="col-lg-4"></div>
+                <div class="col-lg-4">
+                    <!-- Button -->
+                    <div class="form-group">
+                        <label class="col-md-4 control-label"></label>
+                        <div class="col-md-8">
+                            <button type="submit" class="btn btn-warning" >Send <span class="glyphicon glyphicon-send"></span></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <legend>Datos pension</legend>
+            <div class="form-group">
+                <label class="col-md-4 control-label">Fecha Liquidacion</label>
+                <div class="col-md-8 inputGroupContainer">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-credit-card"></i></span>
+                        <input type="date" name="bday" class="form-control" required ng-model="persona.fechaLiquidacion"/>
+                    </div>
+                </div>
+            </div>
+            <!-- Select Basic -->
+
+            <div class="form-group">
+                <label class="col-md-4 control-label">TipoCotizacion</label>
+                <div class="col-md-8 selectContainer">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-list"></i></span>
+                        <select name="state" class="form-control selectpicker"  required ng-model="persona.tipoCotizacion" >
+                            <option value=" ">Seleccionar regimen</option>
+                            <option value="1">Privado</option>
+                            <option value="2">Publico</option>
+                            <option value="3">Aportes</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class=" col-md-4 control-label">Archivo con datos</label>
+                <div class="col-md-8 inputGroupContainer">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-file"></i></span>
+                        <input type="file" on-read-file="nuevaPersonaCtrl.validarData($fileContent)" class="form-control"/>
+                    </div>
+                </div>
+            </div>
+            <!-- Success message -->
+            <div role="alert" id="success_message" ng-class="{'alert alert-success':(nuevaPersonaCtrl.errorData.errorNumber == 0), 'alert alert-danger':nuevaPersonaCtrl.errorData.errorNumber > 0}">
+                {{nuevaPersonaCtrl.errorData.mesageStatus}} <i class="glyphicon glyphicon-thumbs-up"></i>{{nuevaPersonaCtrl.errorData.mensage}}"/>
+            </div>
+            <div>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Nº</th>
+                        <th>FechaDesde</th>
+                        <th>FechaHasta</th>
+                        <th>IBL</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="row in nuevaPersonaCtrl.cvs" ng-class="{'alert-danger':row.error}">
+                            <td>{{$index+1}}</td>
+                            <td>{{row.fechaDesde}}</td>
+                            <td>{{row.fechaHasta}}</td>
+                            <td>{{row.IBC}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+
+        </div>
+    </div>
+
+</form>
+</div>
+    {{persona}}

@@ -3,6 +3,15 @@
  * Copyright 2013-2016 Start Bootstrap
  * Licensed under MIT (https://github.com/BlackrockDigital/startbootstrap/blob/gh-pages/LICENSE)
  */
+.no-visible{
+    display: none;
+}
+.display-el{
+    display: block;
+}
+.pading-top{
+    padding-top: 15px;
+}
 
 .grid {
     width: 100%;

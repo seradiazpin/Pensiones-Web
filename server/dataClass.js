@@ -4,14 +4,16 @@
 "use strict";
 let moment = require("moment");
 let mongoUtil = require("./mongoUtil");
-let S = require('string');
+
 class Persona{
-    constructor(nombre, documento, genero, regimen,fechaNacimiento,tipoCotizacion,fecchaLiquidacion){
+    constructor(nombre, documento, genero,fechaNacimiento,regimen,correo,anotaciones,tipoCotizacion,fecchaLiquidacion){
         this.nombre = nombre;
         this.documento = documento;
         this.genero = genero;
         this.fechaNacimiento = moment(fechaNacimiento,"DD/MM/YYYY");
         this.regimen = regimen || "NODEFINIDO";
+        this.correo = correo || "Sin email";
+        this.anotaciones = anotaciones || "";
         this.tipoCotizacion = tipoCotizacion || 1;
         this.fechaLiquidacion = fecchaLiquidacion;
         this.datosDecision = new DatosDecision(this.fechaNacimiento);
@@ -23,7 +25,7 @@ class Persona{
     toString(){
         return '\nNombre: '+this.nombre+ '\nDocumento: '+this.documento+'\nGenero: '+this.genero+
             '\nRegimen: '+this.regimen + '\nDatosDecicion\n----------------'+this.datosDecision+
-            '\n-------------------\nDatosLiquidacion\n----------------'+this.datosLiquidacion;
+            '\n-------------------\nDatosLiquidacion\n----------------'+this.datosLiquidacion+this.correo+this.anotaciones;
     }
 }
 
@@ -394,9 +396,6 @@ class LiquidadorPension{
             row.IBLtlv = row.salarioActualizado * row.diasEntre;
         }
     }
-
-
-
     regimen(){
         //Si el regimen de trancicion es de ley 100
         for(let i = 0;i < this.persona.datosPension.length;i++){
@@ -466,7 +465,6 @@ class LiquidadorPension{
         }
         return false;
     }
-
     liquidacion(){
         this.persona.datosDecision.totalSemanasCotizadas = this.persona.datosPension[this.persona.datosPension.length-1].semanasAcumuladas;
         switch (this.persona.tipoCotizacion){
@@ -485,7 +483,6 @@ class LiquidadorPension{
                 break;
         }
     }
-
     //Aportes hechos por funcionarios privados
     privado(){
         if(this.persona.datosDecision.totalSemanasCotizadas >= 1250){
@@ -552,8 +549,6 @@ class LiquidadorPension{
         let porcentajepension = 0;
         for(let i = 0;i<this.decreto748.length;i++){
             let row = this.decreto748[i];
-            console.log("porcentaje "+row);
-            console.log("SSS"+this.datosDecision.totalSemanasCotizadas)
             if(this.datosDecision.totalSemanasCotizadas >= row[0] && this.datosDecision.totalSemanasCotizadas <= row[1]){
                 porcentajepension = row[2];
                 break;
@@ -566,6 +561,7 @@ class LiquidadorPension{
     }
     ley797(){
         let yeardata = this.leydata[moment(this.persona.fechaLiquidacion,"DD/MM/YYYY").year()];
+        console.log("Year"+moment(this.persona.fechaLiquidacion).year());
         let porcentajeley = 0;
         for(let i = 0;i< yeardata.length;i++){
             if(this.datosDecision.totalSemanasCotizadas >= yeardata[i][0] && this.datosDecision.totalSemanasCotizadas <=yeardata[i][1]){
@@ -634,6 +630,14 @@ class LiquidadorPension{
     }
 }
 
+
+module.exports = {
+    Persona : Persona,
+    Informacion : Informacion,
+    LiquidadorPension : LiquidadorPension
+}
+
+/**
 let pepe = new Persona("Pepe","123412312","Masculino","NOREGIMEN","2/11/1952",1,"27/02/14");
 let dataExample = [
     ["9/02/71","31/12/71","$ 1.290,00 "],
@@ -736,4 +740,4 @@ function towait() {
 }
 
 
-//mongoUtil.guardarPersona(pepe);
+//mongoUtil.guardarPersona(pepe);*/

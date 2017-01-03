@@ -15,9 +15,14 @@
     <!-- Custom CSS -->
     <link href="css/simple-sidebar.css" rel="stylesheet">
     <link href="css/ui-grid/ui-grid.css" rel="stylesheet">
+    <link href="css/form-for.css" rel="stylesheet">
     <title>Pensiones</title>
 </head>
 <body>
+    <div class="row navbar navbar-inverse navbar-fixed-top">
+        <a href="#menu-toggle" class="btn btn-default" id="menu-toggle">Pensiones chimps</a>
+        <br>
+    </div>
     <div id="wrapper" >
 
         <!-- Sidebar -->
@@ -25,7 +30,7 @@
             <ul class="sidebar-nav">
                 <li class="sidebar-brand">
                     <a href="#">
-                        Pensiones Chimps
+
                     </a>
                 </li>
                 <li>
@@ -40,7 +45,7 @@
 
         <!-- Page Content -->
         <div id="page-content-wrapper">
-            <div class="container-fluid">
+            <div class="container-fluid pading-top">
                 <ui-view></ui-view>
             </div>
         </div>
@@ -55,14 +60,13 @@
     <!-- Bootstrap Core JavaScript -->
     <script src="js/bootstrap.min.js"></script>
 
-    <!-- Menu Toggle Script
+    <!-- Menu Toggle Script-->
     <script>
         $("#menu-toggle").click(function(e) {
             e.preventDefault();
             $("#wrapper").toggleClass("toggled");
-            //window.onresize = function(){ location.reload(); }
         });
-    </script>-->
+    </script>
 
     <script src="dist/bundle.js"></script>
 </body>
