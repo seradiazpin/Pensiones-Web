@@ -7,7 +7,7 @@ let _db;
 
 module.exports = {
     connect(){
-        client.connect("mongodb://localhost:27017/pensiones", (err, db)=>{
+        client.connect("mongodb://sergioAdmin:pecasPensiones@ds151048.mlab.com:51048/pensiones-chimps", (err, db)=>{
             if(err){
                 console.log("Error connecting to mongo - checlk connection");
                 process.exit();

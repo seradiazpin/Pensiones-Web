@@ -36,25 +36,25 @@ app.get("/personas",(request,response)=>{
 
 app.get("/:documento", (request,response)=>{
     let id = request.params.documento;
-    console.log("Persona",id);
+
+    //console.log("Persona - lol ",id);
     let persona = mongoUtil.personas();
     persona.find({documento:id}).limit(1).next((err,doc) =>{
         if(err){
             response.sendStatus(400);
         }
-        console.log("Persona doc", doc);
+        //console.log("Persona doc", doc);
         response.json(doc);
     });
 });
 
 app.post("/personas/nueva", jsonParser, (request, response) => {
     let newPerson = request.body.persona || {};
-    let newPersonClass = new Persona(newPerson.nombre, newPerson.documento, newPerson.genero,newPerson.fechaNacimiento,null,newPerson.correo,newPerson.anotaciones,newPerson.tipoCotizacion,newPerson.fecchaLiquidacion);
+    let newPersonClass = new Persona(newPerson.nombre, newPerson.documento, newPerson.genero,newPerson.fechaNacimiento,null,newPerson.correo,newPerson.anotaciones,newPerson.tipoCotizacion,newPerson.fechaLiquidacion);
     for(let i = 0;i<newPerson.datosPension.length;i++){
         let ibc = S(newPerson.datosPension[i].IBC).replaceAll("$ ","").replaceAll(".","").replaceAll(",",".").s;
         newPersonClass.datosPension.push(new Informacion(newPerson.datosPension[i].fechaDesde,newPerson.datosPension[i].fechaHasta,ibc));
     }
-
     let persons = mongoUtil.personas();
     let lq = new LiquidadorPension(newPersonClass);
     lq.calcularPension();
@@ -65,6 +65,5 @@ app.post("/personas/nueva", jsonParser, (request, response) => {
         response.sendStatus(201);
     });
 });
-
 
 app.listen(8181,()=> console.log("Listent on 8181 :)"));

@@ -1,36 +1,59 @@
-<div class="row">
-    <div class="col-lg-12">
-        <h1>{{personCtrl.persona.nombre}}</h1>
-        <div class="row well">
-            <h3>Datos desicion</h3>
-            <p><b>Edad 1994:</b> {{personCtrl.persona.datosDecision.edad1994}}</p>
-            <p><b>Semanas cotizadas :</b> {{personCtrl.persona.datosDecision.totalSemanasCotizadas}}</p>
-            <p><b>Semanas al 1994: </b>{{personCtrl.persona.datosDecision.semanas1994}}</p>
-            <p><b>Semanas al 2005: </b>{{personCtrl.persona.datosDecision.semanas2005}}</p>
+<div class="row ">
+    <h1>Informacion Usuario</h1>
+    <div class="col-lg-12 well">
+        <a class="btn btn-info">Editar</a>
+        <a class="btn btn-danger">Eliminar</a>
+        <div class="row">
+            <h3>{{personCtrl.persona.nombre}}</h3>
+            <div class="col-lg-6">
+                <p><b>Documento: </b>{{personCtrl.persona.documento}}</p>
+                <h5>Observaciones</h5>
+                <p>{{personCtrl.persona.anotaciones}}</p>
+            </div>
+            <div class="col-lg-6">
+                <p><b>Genero: </b>{{personCtrl.persona.genero}}</p>
+                <p><b>Email: </b>{{personCtrl.persona.correo}}</p>
+                <p><b>Fecha Nacimiento: </b>{{personCtrl.persona.fechaNacimiento}}</p>
+                <input>
+            </div>
         </div>
-            <div class="row well">
-                <h3>Datos Liquidacion</h3>
+        <div class="separator">
+        <div class="row ">
+            <div class="col-lg-3">
+                <h4>Datos desicion</h4>
+                <p><b>Edad 1994: </b>{{personCtrl.persona.datosDecision.edad1994}}</p>
+                <p><b>Semanas cotizadas: </b> {{personCtrl.persona.datosDecision.totalSemanasCotizadas| number:0}}</p>
+                <p><b>Semanas al 1994: </b>{{personCtrl.persona.datosDecision.semanas1994| number:0}}</p>
+                <p><b>Semanas al 2005: </b>{{personCtrl.persona.datosDecision.semanas2005| number:0}}</p>
+            </div>
+            <div class="col-lg-9 verticalLine">
+                <h4>Datos Liquidacion</h4>
                 <div class="col-lg-6">
-                    <p><b>promedioIBLtodaVida : </b>{{personCtrl.persona.datosLiquidacion.pIBLtv}}</p>
-                    <p><b>promedioIBLultimos10years : </b>{{personCtrl.persona.datosLiquidacion.pIBL10A}} </p>
-                    <p><b>promedioIBLultimoYear : </b>{{personCtrl.persona.datosLiquidacion.pIBLuA}} </p>
-                    <p><b>Monto:</b>{{personCtrl.persona.datosLiquidacion.monto}}</p>
-                    <p><b>MontoLey797 : </b>{{personCtrl.persona.datosLiquidacion.montoLey}}</p>
-                    <p><b>NumeroSalariosMinimos: </b>{{personCtrl.persona.datosLiquidacion.nSalariosMin}}</p>
+                    <p><b>Promedio IBL todaVida: </b> {{personCtrl.persona.datosLiquidacion.pIBLtv| number:2}}</p>
+                    <p><b>Promedio IBL ultimos 10 años: </b> {{personCtrl.persona.datosLiquidacion.pIBL10A | number:2}} </p>
+                    <p><b>Promedio IBL ultimo año: </b>{{personCtrl.persona.datosLiquidacion.pIBLuA| number:2}} </p>
+                    <p><b>Monto: </b>{{personCtrl.persona.datosLiquidacion.monto| number:2}}</p>
+                    <p><b>Monto Ley 797: </b>{{personCtrl.persona.datosLiquidacion.montoLey| number:0}}%</p>
+                    <p><b>Nº Salarios Minimos: </b>{{personCtrl.persona.datosLiquidacion.nSalariosMin| number:0}}</p>
                 </div>
                 <div class="col-lg-6">
-                    <p><b>ValorPensionDecreto758 : </b>{{personCtrl.persona.datosLiquidacion.valorPensionDecreto}} </p>
-                    <p><b>ValorPensionley797 : </b>{{personCtrl.persona.datosLiquidacion.valorPensionLey}}</p>
-                    <p><b>valorPensionPublicos : </b>{{personCtrl.persona.datosLiquidacion.valorPensionPublicos}} </p>
-                    <p><b>ValorPensionAportes : </b> {{personCtrl.persona.datosLiquidacion.valorPensionAportes}}</p>
-                    <p><b>FechaCumplimiento : </b>{{personCtrl.persona.datosLiquidacion.fechaCumplimiento}}</p>
+                    <p><b>Valor pension decreto 758: </b>{{personCtrl.persona.datosLiquidacion.valorPensionDecreto| currency}} </p>
+                    <p><b>Valor pension ley 797: </b>{{personCtrl.persona.datosLiquidacion.valorPensionLey| currency}}</p>
+                    <p><b>valor pension publicos: </b>{{personCtrl.persona.datosLiquidacion.valorPensionPublicos| currency}} </p>
+                    <p><b>Valor pension aportes: </b> {{personCtrl.persona.datosLiquidacion.valorPensionAportes| currency}}</p>
+                    <p><b>Fecha cumplimiento: </b>{{personCtrl.persona.datosLiquidacion.fechaCumplimiento}}</p>
                 </div>
             </div>
+        </div>
     </div>
+    </div>
+<br>
 </div>
+
+
 
 <div class="row">
     <div class="col-lg-12">
-        <div ui-grid="{data:personCtrl.persona.datosPension}" ui-grid-auto-resize class="table"></div>
+        <div ui-grid="personCtrl.gridOptions" ui-grid-auto-resize ui-grid-exporter class="table grid2"></div>
     </div>
 </div>

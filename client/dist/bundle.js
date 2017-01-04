@@ -16,7 +16,7 @@ var moment = require('moment'); /**
                                  */
 
 
-_angular2.default.module('pensiones', ["ui.router", "ui.grid", "ui.grid.autoResize"]).config(function ($stateProvider, $urlRouterProvider) {
+_angular2.default.module('pensiones', ["ui.router", "ui.grid", "ui.grid.autoResize", 'ui.grid.exporter']).config(function ($stateProvider, $urlRouterProvider) {
     $urlRouterProvider.otherwise("/personas");
     $stateProvider.state("personas", {
         url: "/personas",
@@ -119,8 +119,77 @@ _angular2.default.module('pensiones', ["ui.router", "ui.grid", "ui.grid.autoResi
                 return $http.get($stateParams.idPersona);
             }
         },
+
         controller: function controller(personaService) {
+            this.gridOptions = {
+                enableSorting: false,
+                headerCellClass: 'text-justify',
+                columnDefs: [{
+                    field: 'fechaHasta',
+                    displayName: 'Fecha \ndesde',
+                    cellClass: "text-justify",
+                    width: "*"
+                }, { field: 'fechaHasta', displayName: 'Fecha  hasta', cellClass: "text-justify", width: "*" }, {
+                    field: 'IBC',
+                    displayName: 'IBC',
+                    cellClass: "text-justify",
+                    width: "*",
+                    cellFilter: 'currency'
+                } /*,
+                  {field:'year', displayName: 'Año', cellClass: "text-justify", width: "*" },
+                  {field:'diasEntre', displayName: 'Dias entre fechas', cellClass: "text-justify", width: "*" }*/
+                , {
+                    field: 'semanasAcumuladas',
+                    displayName: 'Nº semanas acumuladas',
+                    cellClass: "text-justify",
+                    width: "*",
+                    cellFilter: 'number: 0'
+                }, { field: 'factorIPC', displayName: 'Factor  IPC', cellClass: "text-justify", width: "*" }, {
+                    field: 'salarioActualizado',
+                    displayName: 'Salario  actualizado',
+                    cellClass: "text-justify",
+                    width: "*",
+                    cellFilter: 'number: 3'
+                }, {
+                    field: 'IBLtlv',
+                    displayName: 'IBL toda la vida',
+                    cellClass: "text-justify",
+                    width: "*",
+                    cellFilter: 'number: 2'
+                }, {
+                    field: 'numDias10Y',
+                    displayName: 'Nº dias 10 años',
+                    cellClass: "text-justify",
+                    width: "*"
+                }, {
+                    field: 'IBL10Y',
+                    displayName: 'IBL 10 años',
+                    cellClass: "text-justify",
+                    width: "*",
+                    cellFilter: 'number: 2'
+                }, { field: 'numDiasuY', displayName: 'Nº dias 1 años', cellClass: "text-justify", width: "*" }, {
+                    field: 'IBLuy',
+                    displayName: 'IBL 1 años',
+                    cellClass: "text-justify",
+                    width: "*",
+                    cellFilter: 'number: 2'
+                }],
+                data: personaService.data.datosPension,
+                enableGridMenu: true,
+                enableSelectAll: true,
+                exporterCsvFilename: personaService.data.documento + "-" + personaService.data.nombre + '.csv',
+                exporterCsvLinkElement: _angular2.default.element(document.querySelectorAll(".custom-csv-link-location")),
+                onRegisterApi: function onRegisterApi(gridApi) {
+                    this.gridApi = gridApi;
+                }
+            };
             this.persona = personaService.data;
+            this.export = function () {
+                var grid = this.gridApi.grid;
+                var rowTypes = uiGridExporterConstants.ALL;
+                var colTypes = uiGridExporterConstants.ALL;
+                this.gridApi.exporter.csvExport(rowTypes, colTypes, grid);
+            };
         },
         controllerAs: "personCtrl"
     });

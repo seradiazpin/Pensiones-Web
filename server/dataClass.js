@@ -6,17 +6,17 @@ let moment = require("moment");
 let mongoUtil = require("./mongoUtil");
 
 class Persona{
-    constructor(nombre, documento, genero,fechaNacimiento,regimen,correo,anotaciones,tipoCotizacion,fecchaLiquidacion){
+    constructor(nombre, documento, genero,fechaNacimiento,regimen,correo,anotaciones,tipoCotizacion,fechaLiquidacion){
         this.nombre = nombre;
         this.documento = documento;
         this.genero = genero;
-        this.fechaNacimiento = moment(fechaNacimiento,"DD/MM/YYYY");
+        this.fechaNacimiento = moment(fechaNacimiento).format("DD/MM/YYYY");
         this.regimen = regimen || "NODEFINIDO";
         this.correo = correo || "Sin email";
         this.anotaciones = anotaciones || "";
         this.tipoCotizacion = tipoCotizacion || 1;
-        this.fechaLiquidacion = fecchaLiquidacion;
-        this.datosDecision = new DatosDecision(this.fechaNacimiento);
+        this.fechaLiquidacion = fechaLiquidacion;
+        this.datosDecision = new DatosDecision(moment(this.fechaNacimiento,"DD/MM/YYYY"));
         this.datosLiquidacion = new DatosLiquidacion();
         this.datosPension = [];
 
@@ -468,13 +468,13 @@ class LiquidadorPension{
     liquidacion(){
         this.persona.datosDecision.totalSemanasCotizadas = this.persona.datosPension[this.persona.datosPension.length-1].semanasAcumuladas;
         switch (this.persona.tipoCotizacion){
-            case 1:
+            case "1":
                 this.privado();
                 break;
-            case 2:
+            case "2":
                 this.publico();
                 break;
-            case 3:
+            case "3":
                 this.aportes();
                 break;
             default:
@@ -560,8 +560,8 @@ class LiquidadorPension{
         this.datosLiquidacion.valorPensionDecreto = this.datosLiquidacion.pIBL10A * porcentajepension;
     }
     ley797(){
-        let yeardata = this.leydata[moment(this.persona.fechaLiquidacion,"DD/MM/YYYY").year()];
-        console.log("Year"+moment(this.persona.fechaLiquidacion).year());
+        let yeardata = this.leydata[moment(this.persona.fechaLiquidacion).year()];
+        console.log("Year" + moment(this.persona.fechaLiquidacion).year());
         let porcentajeley = 0;
         for(let i = 0;i< yeardata.length;i++){
             if(this.datosDecision.totalSemanasCotizadas >= yeardata[i][0] && this.datosDecision.totalSemanasCotizadas <=yeardata[i][1]){
@@ -573,7 +573,7 @@ class LiquidadorPension{
             return 0;
         }
 
-        this.datosLiquidacion.nSalariosMin = this.datosLiquidacion.pIBL10A/this.smv[moment(this.persona.fechaLiquidacion,"DD/MM/YYYY").year()];
+        this.datosLiquidacion.nSalariosMin = this.datosLiquidacion.pIBL10A/this.smv[moment(this.persona.fechaLiquidacion).year()];
         porcentajeley = porcentajeley * 100;
         this.datosLiquidacion.montoLey  = porcentajeley - (0.5 * this.datosLiquidacion.nSalariosMin);
         this.datosLiquidacion.valorPensionLey = (this.datosLiquidacion.pIBL10A * this.datosLiquidacion.montoLey) / 100;
@@ -618,10 +618,10 @@ class LiquidadorPension{
     }
     resumen(){
         if(this.persona.fechaNacimiento === "Femenino"){
-            this.datosLiquidacion.fechaCumplimiento = moment(this.persona.fechaNacimiento,"DD/MM/YYYY").add(55, 'years').toString();
+            this.datosLiquidacion.fechaCumplimiento = moment(this.persona.fechaNacimiento,"DD/MM/YYYY").add(55, 'years').format("DD/MM/YYYY").toString();
         }
         if(this.persona.genero === "Masculino"){
-            this.datosLiquidacion.fechaCumplimiento = moment(this.persona.fechaNacimiento,"DD/MM/YYYY").add(60, 'years').toString();
+            this.datosLiquidacion.fechaCumplimiento = moment(this.persona.fechaNacimiento,"DD/MM/YYYY").add(60, 'years').format("DD/MM/YYYY").toString();
         }
         //for(let i = 0;i<this.persona.datosPension.length;i++){
             //console.log("|"+i+this.persona.datosPension[i].toString());

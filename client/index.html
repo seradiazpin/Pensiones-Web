@@ -16,43 +16,68 @@
     <link href="css/simple-sidebar.css" rel="stylesheet">
     <link href="css/ui-grid/ui-grid.css" rel="stylesheet">
     <link href="css/form-for.css" rel="stylesheet">
+    <link rel="icon" href="./images/mankey.ico">
     <title>Pensiones</title>
 </head>
 <body>
-    <div class="row navbar navbar-inverse navbar-fixed-top">
-        <a href="#menu-toggle" class="btn btn-default" id="menu-toggle">Pensiones chimps</a>
-        <br>
-    </div>
-    <div id="wrapper" >
+<div class="container example5">
+    <nav class="navbar navbar-default navbar-fixed-top navbar-inverse" id="nav-over-all">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#" id="menu-toggle"><img style="	width: 80px;" src="./images/mankey.svg" alt="Dispute Bills">Pensiones Chimps
+                </a>
+            </div>
 
-        <!-- Sidebar -->
-        <div id="sidebar-wrapper">
-            <ul class="sidebar-nav">
-                <li class="sidebar-brand">
-                    <a href="#">
+            <!--/.nav-collapse -->
+        </div>
+        <!--/.container-fluid -->
 
-                    </a>
+    </nav>
+</div>
+<nav class="navbar navbar-inverse sidebar fixed-menu" role="navigation">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-sidebar-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Brand</a>
+        </div>
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-sidebar-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#">Home<span style="font-size:16px;" class="pull-right hidden-xs showopacity glyphicon glyphicon-home"></span></a></li>
+                <li ><a href="#">Perfil<span style="font-size:16px;" class="pull-right hidden-xs showopacity glyphicon glyphicon-user"></span></a></li>
+                <li ><a href="#">Messages<span style="font-size:16px;" class="pull-right hidden-xs showopacity glyphicon glyphicon-envelope"></span></a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Settings <span class="caret"></span><span style="font-size:16px;" class="pull-right hidden-xs showopacity glyphicon glyphicon-cog"></span></a>
+                    <ul class="dropdown-menu forAnimate" role="menu">
+                        <li><a href="#">Action</a></li>
+                        <li><a href="#">Another action</a></li>
+                        <li><a href="#">Something else here</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#">Separated link</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#">One more separated link</a></li>
+                    </ul>
                 </li>
-                <li>
-                    <a href="#">Personas</a>
-                </li>
-                <li>
-                    <a href="#">Shortcuts</a>
-                </li>
+
+                <li><a href="#">Salir<span style="font-size:16px;" class="pull-right hidden-xs showopacity glyphicon glyphicon-log-out"></span></a></li>
+
             </ul>
         </div>
-        <!-- /#sidebar-wrapper -->
-
-        <!-- Page Content -->
-        <div id="page-content-wrapper">
-            <div class="container-fluid pading-top">
-                <ui-view></ui-view>
-            </div>
-        </div>
-        <!-- /#page-content-wrapper -->
-
     </div>
-    <!-- /#wrapper -->
+</nav>
+<div class="main">
+    <!-- Content Here -->
+    <div class="container-fluid pading-top">
+        <ui-view></ui-view>
+    </div>
+</div>
+
 
     <!-- jQuery -->
     <script src="js/jquery.js"></script>
@@ -62,9 +87,30 @@
 
     <!-- Menu Toggle Script-->
     <script>
-        $("#menu-toggle").click(function(e) {
-            e.preventDefault();
-            $("#wrapper").toggleClass("toggled");
+        function htmlbodyHeightUpdate(){
+            var height3 = $( window ).height()
+            var height1 = $('.nav').height()+50
+            height2 = $('.main').height()
+            if(height2 > height3){
+                $('html').height(Math.max(height1,height3,height2)+10);
+                $('body').height(Math.max(height1,height3,height2)+10);
+            }
+            else
+            {
+                $('html').height(Math.max(height1,height3,height2));
+                $('body').height(Math.max(height1,height3,height2));
+            }
+
+        }
+        $(document).ready(function () {
+            htmlbodyHeightUpdate()
+            $( window ).resize(function() {
+                htmlbodyHeightUpdate()
+            });
+            $( window ).scroll(function() {
+                height2 = $('.main').height()
+                htmlbodyHeightUpdate()
+            });
         });
     </script>
 
