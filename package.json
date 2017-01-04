@@ -2,7 +2,7 @@
   "name": "pensiones",
   "version": "1.0.0",
   "description": "Programa que implementa funcionalidad de calculo de pensiones en Colombia",
-  "main": "index.js",
+  "main": "server/app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "gulp watch --gulpfile client/gulpfile.babel.js"
