@@ -14,16 +14,8 @@ let Informacion = require("./dataClass").Informacion;
 let LiquidadorPension = require("./dataClass").LiquidadorPension;
 
 mongoUtil.connect();
+app.set('port', (process.env.PORT || 5000));
 app.use(express.static(__dirname + "/../client"));
-
-/*
-app.get("/sports", (request, response)=>{
-    let sports = mongoUtil.sports();
-    sports.find().toArray((err,doc) =>{
-    let sportsNames = doc.map((sport)=>sport.name);
-    response.json(sportsNames);
-    });
-});*/
 
 app.get("/personas",(request,response)=>{
     let personas = mongoUtil.personas();
@@ -66,4 +58,6 @@ app.post("/personas/nueva", jsonParser, (request, response) => {
     });
 });
 
-app.listen(8181,()=> console.log("Listent on 8181 :)"));
+app.listen(app.get('port'), function() {
+  console.log('Node app is running on port', app.get('port'));
+});
