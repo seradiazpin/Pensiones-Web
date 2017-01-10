@@ -5,12 +5,34 @@ import angular from 'angular'
 import 'angular-ui-router';
 import 'angular-ui-grid';
 let moment = require('moment');
+let Liquidacion = require("../../server/dataClass").LiquidadorPension;
 
-
-angular.module('pensiones',["ui.router","ui.grid", "ui.grid.autoResize", 'ui.grid.exporter'])
+angular.module('pensiones',["ui.router","ui.grid", "ui.grid.autoResize", 'ui.grid.exporter','ui.grid.edit'])
     .config(($stateProvider,$urlRouterProvider) => {
-        $urlRouterProvider.otherwise("/personas");
+        $urlRouterProvider.otherwise("/");
         $stateProvider
+            .state("login",{
+                url: "/",
+                templateUrl:("templates/login.html"),
+                params:{errorMessage : ""},
+                controller: function ($state,$stateParams,$http) {
+                    this.errorMessage = $stateParams.errorMessage;
+                    this.login = function (admin) {
+                        $http({
+                            method : 'POST',
+                            url:'login',
+                            data:{admin}
+                        }).then(function (response) {
+                            if(!response.data.error){
+                                $state.go('personas',{});
+                            }else {
+                                $state.go('login',{errorMessage :"Usuario o contraseña invalido"});
+                            }
+                        });
+                    };
+                },
+                controllerAs:"loginCtrl"
+            })
             .state("personas",{
                 url:"/personas",
                 templateUrl : "templates/personas-nav.html",
@@ -116,15 +138,17 @@ angular.module('pensiones',["ui.router","ui.grid", "ui.grid.autoResize", 'ui.gri
                     }
                 },
 
-                controller: function(personaService) {
+                controller: function(personaService , $state , $http,$stateParams,$scope) {
                     this.gridOptions = {
                         enableSorting: false,
                         headerCellClass: 'text-justify',
-                        columnDefs: [{
+                        columnDefs: [
+                            {
                             field: 'fechaHasta',
                             displayName: 'Fecha \ndesde',
                             cellClass: "text-justify",
-                            width: "*"
+                            width: "*",
+                            enableCellEdit: true
                         },
                             {field: 'fechaHasta', displayName: 'Fecha  hasta', cellClass: "text-justify", width: "*"},
                             {
@@ -132,10 +156,11 @@ angular.module('pensiones',["ui.router","ui.grid", "ui.grid.autoResize", 'ui.gri
                                 displayName: 'IBC',
                                 cellClass: "text-justify",
                                 width: "*",
-                                cellFilter: 'currency'
-                            }/*,
-                             {field:'year', displayName: 'Año', cellClass: "text-justify", width: "*" },
-                             {field:'diasEntre', displayName: 'Dias entre fechas', cellClass: "text-justify", width: "*" }*/,
+                                cellFilter: 'currency',
+                                enableCellEdit: true
+                            },
+                             {field:'year', displayName: 'Año', cellClass: "text-justify", width: "*",visible:false },
+                             {field:'diasEntre', displayName: 'Dias entre fechas', cellClass: "text-justify", width: "*",visible:false  },
                             {
                                 field: 'semanasAcumuladas',
                                 displayName: 'Nº semanas acumuladas',
@@ -186,9 +211,63 @@ angular.module('pensiones',["ui.router","ui.grid", "ui.grid.autoResize", 'ui.gri
                         exporterCsvLinkElement: angular.element(document.querySelectorAll(".custom-csv-link-location")),
                         onRegisterApi: function(gridApi){
                             this.gridApi = gridApi;
+
+                            gridApi.edit.on.afterCellEdit($scope,function(rowEntity, colDef, newValue, oldValue){
+                                $scope.msg.lastCellEdited = 'edited row id:' + rowEntity.id + ' Column:' + colDef.name + ' newValue:' + newValue + ' oldValue:' + oldValue ;
+                             });
+
                         }
                     };
                     this.persona = personaService.data;
+                    this.fechasEdit = {
+                        nacimiento: moment(personaService.data.fechaNacimiento,"DD/MM/YYYY").format("YYYY-MM-DD"),
+                        liquidacion : moment(personaService.data.fechaLiquidacion,"DD/MM/YYYY").format("YYYY-MM-DD")
+                    };
+
+                    this.edit = false;
+                    this.cancelar = function () {
+                        this.edit = !this.edit;
+                        if(!this.edit) {
+                            this.persona = angular.copy(this.backup);
+                            delete this.backup;
+                        }
+                    };
+                    this.editConfirm = function (persona) {
+                        this.backup = angular.copy(persona);
+                        this.edit = !this.edit;
+                        let that = this;
+                        console.log(this.fechasEdit.nacimiento);
+                        if(!this.edit){
+                            persona.fechaNacimiento = persona.fechaNacimiento2;
+                            persona.fechaLiquidacion = persona.fechaLiquidacion2;
+                            delete persona.fechaNacimiento2;
+                            delete persona.fechaLiquidacion2;
+                            console.log("guardando persona");
+                            $http({
+                                method : 'POST',
+                                url:'editar/'+$stateParams.idPersona,
+                                data:{persona}
+                            }).then(function () {
+                                $http.get($stateParams.idPersona).then(
+                                    function (res) {
+                                        that.persona = res.data;
+                                        that.fechasEdit = {
+                                            nacimiento: moment(personaService.data.fechaNacimiento,"DD/MM/YYYY").format("YYYY-MM-DD"),
+                                            liquidacion : moment(personaService.data.fechaLiquidacion,"DD/MM/YYYY").format("YYYY-MM-DD")
+                                        };
+                                    }
+                                );
+                                delete that.backup;
+                            });
+                        }
+
+                    };
+                    this.borrarPersona = function () {
+                        return $http.get("/borrar/"+$stateParams.idPersona)
+                            .then(function () {
+                                $state.go('personas',{});
+                            });
+                    };
                     this.export = function () {
                         let grid = this.gridApi.grid;
                         let rowTypes = uiGridExporterConstants.ALL;
@@ -198,7 +277,8 @@ angular.module('pensiones',["ui.router","ui.grid", "ui.grid.autoResize", 'ui.gri
                 },
                 controllerAs : "personCtrl"
             });
-    }).directive('onReadFile', function ($parse) {
+    })
+    .directive('onReadFile', function ($parse) {
         return {
             restrict: 'A',
             scope: false,

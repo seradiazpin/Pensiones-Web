@@ -5,13 +5,16 @@
 
 let express = require("express");
 let app = express();
+let moment = require('moment');
 let bodyParser = require("body-parser");
 let jsonParser = bodyParser.json();
 let mongoUtil = require("./mongoUtil");
+
 let S = require('string');
 let Persona = require("./dataClass").Persona;
 let Informacion = require("./dataClass").Informacion;
 let LiquidadorPension = require("./dataClass").LiquidadorPension;
+
 
 mongoUtil.connect();
 app.set('port', (process.env.PORT || 5000));
@@ -26,6 +29,20 @@ app.get("/personas",(request,response)=>{
     });
 });
 
+app.post("/login",jsonParser,(request,response) =>{
+    let admin = request.body.admin || {};
+    if(admin == {} || !admin){
+        response.json({error:true});
+    }else{
+        if(admin.username === "fediaz" && admin.password === "secret123" ) {
+            response.json({error: false});
+        }else{
+            response.json({error: true});
+        }
+
+    }
+});
+
 app.get("/:documento", (request,response)=>{
     let id = request.params.documento;
 
@@ -37,6 +54,33 @@ app.get("/:documento", (request,response)=>{
         }
         //console.log("Persona doc", doc);
         response.json(doc);
+    });
+});
+
+app.post("/editar/:documento", jsonParser, (request, response) => {
+    let newPerson = request.body.persona || {};
+    let id = request.params.documento;
+    let editPerson = new Persona(newPerson.nombre, newPerson.documento, newPerson.genero,newPerson.fechaNacimiento,null,newPerson.correo,newPerson.anotaciones,newPerson.tipoCotizacion,newPerson.fechaLiquidacion);
+    editPerson.datosPension = newPerson.datosPension;
+    //let newPersonClass = new Persona(editPerson.nombre, editPerson.documento, editPerson.genero,editPerson.fechaNacimiento,null,editPerson.correo,editPerson.anotaciones,editPerson.tipoCotizacion,editPerson.fechaLiquidacion);
+    //newPersonClass.datosPension = editPerson.datosPension;
+
+    if(!editPerson.datosPension || !editPerson.nombre || !editPerson.documento){
+        response.sendStatus(400);
+    }
+    delete editPerson["_id"];
+
+    let persons = mongoUtil.personas();
+    let query = {documento:id};
+    let update = {$set:editPerson};
+    let lq = new LiquidadorPension(editPerson);
+    lq.calcularPension();
+    persons.update(query, update,(err, res) => {
+        if(err){
+            response.sendStatus(400);
+        }else {
+            response.sendStatus(201);
+        }
     });
 });
 

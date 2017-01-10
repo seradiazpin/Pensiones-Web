@@ -4,6 +4,14 @@
  * Licensed under MIT (https://github.com/BlackrockDigital/startbootstrap/blob/gh-pages/LICENSE)
  */
 
+.no-visible{
+    display: none;
+}
+
+display-el{
+    display: block;
+}
+
 .header-container {
     position: relative;
     background-color: #fff;

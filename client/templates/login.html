@@ -1,0 +1,30 @@
+<div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" align="center">
+                <img class="img-rounded" id="img_logo" src="images/mankey.svg">
+            </div>
+
+            <!-- Begin # DIV Form -->
+            <div id="div-forms">
+
+                <!-- Begin # Login Form -->
+                <form id="login-form" ng-submit="loginCtrl.login(admin)">
+                    <div class="modal-body">
+                        <input ng-model="admin.username" class="form-control" type="text" placeholder="Usuario" required>
+                        <input ng-model="admin.password" class="form-control" type="password" placeholder="Contraseña" required>
+                    </div>
+                    <div class="modal-footer">
+                        <div>
+                            <button type="submit" class="btn btn-primary btn-lg btn-block">Login</button>
+                        </div>
+                        {{loginCtrl.errorMessage}}
+                    </div>
+                </form>
+                <!-- End # Login Form -->
+                {{admin}}
+            </div>
+            <!-- End # DIV Form -->
+        </div>
+    </div>
+</div>

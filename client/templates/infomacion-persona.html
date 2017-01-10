@@ -1,12 +1,15 @@
 <div class="row ">
     <h1>Informacion Usuario</h1>
     <div class="col-lg-12 well">
-        <a class="btn btn-info">Editar</a>
-        <a class="btn btn-danger">Eliminar</a>
-        <div class="row">
+        <a class="btn btn-info" ng-click="personCtrl.editConfirm(personCtrl.persona)">{{personCtrl.edit ? "Guardar" : "Editar"}}</a>
+        <a class="btn btn-danger" ng-class="{'no-visible':personCtrl.edit, 'display-el':personCtrl.edit}">Eliminar</a>
+        <a class="btn btn-danger" ng-class="{'no-visible':!personCtrl.edit, 'display-el':personCtrl.edit}" ng-click="personCtrl.cancelar()">Cancelar</a>
+        <div class="row" ng-class="{'no-visible':personCtrl.edit, 'display-el':!personCtrl.edit}">
+            <div class="row"></div>
             <h3>{{personCtrl.persona.nombre}}</h3>
             <div class="col-lg-6">
                 <p><b>Documento: </b>{{personCtrl.persona.documento}}</p>
+                <p><b>Tipo Cotizacion: </b>{{personCtrl.persona.tipoCotizacion}}</p>
                 <h5>Observaciones</h5>
                 <p>{{personCtrl.persona.anotaciones}}</p>
             </div>
@@ -14,7 +17,42 @@
                 <p><b>Genero: </b>{{personCtrl.persona.genero}}</p>
                 <p><b>Email: </b>{{personCtrl.persona.correo}}</p>
                 <p><b>Fecha Nacimiento: </b>{{personCtrl.persona.fechaNacimiento}}</p>
-                <input>
+                <p><b>Fecha Liquidacion: </b>{{personCtrl.persona.fechaLiquidacion}}</p>
+            </div>
+        </div>
+        <div class="row" ng-class="{'no-visible':!personCtrl.edit, 'display-el':personCtrl.edit}">
+            <h3>
+                <input  name="first_name" placeholder="Nombre" ng-value="personCtrl.persona.nombre" class="form-control"  type="text" required ng-model="personCtrl.persona.nombre">
+            </h3>
+
+            <div class="col-lg-6">
+                <input name="phone" placeholder="1234567890"  ng-value="personCtrl.persona.documento" class="form-control" type="text" required ng-model="personCtrl.persona.documento">
+
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="glyphicon glyphicon-list"></i></span>
+                    <select name="state" class="form-control selectpicker" ng-value="personCtrl.persona.tipoCotizacion" required ng-model="personCtrl.persona.tipoCotizacion" >
+                        <option value=" ">Seleccionar regimen</option>
+                        <option value="1">Privado</option>
+                        <option value="2">Publico</option>
+                        <option value="3">Aportes</option>
+                    </select>
+                </div>
+
+
+                <h5>Observaciones</h5>
+                <textarea class="form-control" ng-value="personCtrl.persona.anotaciones" rows="6"name="comment" placeholder="Informacion de interes de la persona" ng-model="personCtrl.persona.anotaciones"></textarea>
+
+            </div>
+            <div class="col-lg-6">
+                <p><b>Genero: </b>{{personCtrl.persona.genero}}</p>
+                <input name="email" ng-value="personCtrl.persona.correo" placeholder="E-Mail" class="form-control"  type="text" ng-model="personCtrl.persona.correo">
+                <p><b>Fecha Nacimiento: </b></p>
+                    <input type="date" name="bdayedit" value="{{personCtrl.fechasEdit.nacimiento}}" class="form-control" ng-model="personCtrl.persona.fechaNacimiento2"/>
+
+                <p><b>Fecha Liquidacion:</b></p>
+                    <input type="date" name="liqday" class="form-control" value="{{personCtrl.fechasEdit.liquidacion}}"  ng-model="personCtrl.persona.fechaLiquidacion2"/>
+                <br>
+                {{personCtrl.fechasEdit}}
             </div>
         </div>
         <div class="separator">
@@ -51,9 +89,9 @@
 </div>
 
 
-
+{{$scope.msg.lastCellEdited}}
 <div class="row">
     <div class="col-lg-12">
-        <div ui-grid="personCtrl.gridOptions" ui-grid-auto-resize ui-grid-exporter class="table grid2"></div>
+        <div ui-grid="personCtrl.gridOptions" ui-grid-auto-resize ui-grid-exporter ui-grid-edit class="table grid2"></div>
     </div>
 </div>
