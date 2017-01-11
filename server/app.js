@@ -11,14 +11,14 @@ let jsonParser = bodyParser.json();
 let mongoUtil = require("./mongoUtil");
 
 let S = require('string');
-let Persona = require("./dataClass").Persona;
-let Informacion = require("./dataClass").Informacion;
-let LiquidadorPension = require("./dataClass").LiquidadorPension;
-
+let Persona = require("./models/Persona").Persona;
+let Informacion = require("./models/Informacion").Informacion;
+let LiquidadorPension = require("./models/LiquidadorPension").LiquidadorPension;
 
 mongoUtil.connect();
+
 app.set('port', (process.env.PORT || 5000));
-app.use(express.static(__dirname + "/../client"));
+app.use(express.static(__dirname + "/public"));
 
 app.get("/personas",(request,response)=>{
     let personas = mongoUtil.personas();
@@ -43,18 +43,21 @@ app.post("/login",jsonParser,(request,response) =>{
     }
 });
 
-app.get("/:documento", (request,response)=>{
+app.get("/persona/:documento", (request,response)=>{
     let id = request.params.documento;
-
-    //console.log("Persona - lol ",id);
-    let persona = mongoUtil.personas();
-    persona.find({documento:id}).limit(1).next((err,doc) =>{
-        if(err){
-            response.sendStatus(400);
-        }
-        //console.log("Persona doc", doc);
-        response.json(doc);
-    });
+    if(id == null || typeof id === typeof ""){
+        response.sendStatus(404);
+    }else{
+        //console.log("Persona - lol ",id);
+        let persona = mongoUtil.personas();
+        persona.find({documento:id}).limit(1).next((err,doc) =>{
+            if(err){
+                response.sendStatus(400);
+            }
+            //console.log("Persona doc", doc);
+            response.json(doc);
+        });
+    }
 });
 
 app.post("/editar/:documento", jsonParser, (request, response) => {
@@ -100,6 +103,10 @@ app.post("/personas/nueva", jsonParser, (request, response) => {
         }
         response.sendStatus(201);
     });
+});
+
+app.get('/*', function(req, res) {
+    res.redirect('/personas');
 });
 
 app.listen(app.get('port'), function() {

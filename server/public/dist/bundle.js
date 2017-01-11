@@ -1,289 +1,4 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-'use strict';
-
-var _angular = require('angular');
-
-var _angular2 = _interopRequireDefault(_angular);
-
-require('angular-ui-router');
-
-require('angular-ui-grid');
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var moment = require('moment'); /**
-                                 * Created by sergiodiazpinilla on 29/11/16.
-                                 */
-
-var Liquidacion = require("../../server/dataClass").LiquidadorPension;
-
-_angular2.default.module('pensiones', ["ui.router", "ui.grid", "ui.grid.autoResize", 'ui.grid.exporter', 'ui.grid.edit']).config(function ($stateProvider, $urlRouterProvider) {
-    $urlRouterProvider.otherwise("/");
-    $stateProvider.state("login", {
-        url: "/",
-        templateUrl: "templates/login.html",
-        params: { errorMessage: "" },
-        controller: function controller($state, $stateParams, $http) {
-            this.errorMessage = $stateParams.errorMessage;
-            this.login = function (admin) {
-                $http({
-                    method: 'POST',
-                    url: 'login',
-                    data: { admin: admin }
-                }).then(function (response) {
-                    if (!response.data.error) {
-                        $state.go('personas', {});
-                    } else {
-                        $state.go('login', { errorMessage: "Usuario o contraseña invalido" });
-                    }
-                });
-            };
-        },
-        controllerAs: "loginCtrl"
-    }).state("personas", {
-        url: "/personas",
-        templateUrl: "templates/personas-nav.html",
-        resolve: {
-            personasService: function personasService($http) {
-                return $http.get("/personas");
-            }
-        },
-        controller: function controller(personasService) {
-            this.personas = personasService.data;
-        },
-        controllerAs: "personasCtrl"
-
-    }).state("nueva-persona", {
-        url: "/nuevo-persona",
-        templateUrl: "templates/agregar-persona.html",
-        controller: function controller($state, $http) {
-            this.errorData = {
-                mesageStatus: " ",
-                mensage: "Favor ingresar archivo .cvs con los siguientes cabecera, fechaDesde,fechaHasta,IBC",
-                errorNumber: 0,
-                continuar: false
-            };
-
-            this.validarData = function ($fileContent) {
-                this.cvs = this.csvJSON($fileContent.toString());
-                this.validarTabla(this.cvs);
-                _angular2.default.element("input[type='file']").val(null);
-            };
-            this.csvJSON = function (csv) {
-                var lines = csv.replace(/\r/g, '').split("\n");
-                var result = [];
-                var headers = lines[0].split(";");
-                for (var i = 1; i < lines.length; i++) {
-                    var obj = {};
-                    var currentline = lines[i].split(";");
-                    for (var j = 0; j < headers.length; j++) {
-                        obj[headers[j]] = currentline[j];
-                    }
-                    result.push(obj);
-                }
-                return result; //JavaScript object
-                //return JSON.stringify(result); //JSON
-            };
-            this.validarTabla = function (data) {
-                this.errorData.mensage = "";
-                this.errorData.errorNumber = 0;
-                for (var i = 0; i < data.length; i++) {
-                    var row = data[i];
-                    if (this.mayorFecha(row.fechaDesde, data[data.length - 1].fechaDesde)) {
-                        row.error = true;
-                        this.errorData.errorNumber++;
-                    }
-                    if (i > 0) {
-                        var lastRow = data[i - 1];
-                        if (!this.mayorFecha(row.fechaDesde, lastRow.fechaHasta)) {
-                            row.error = true;
-                            this.errorData.errorNumber++;
-                        }
-
-                        if (!this.mayorFecha(row.fechaDesde, lastRow.fechaDesde)) {
-                            lastRow.error = true;
-                            this.errorData.errorNumber++;
-                        }
-                    }
-                }
-                if (this.errorData.errorNumber === 0) {
-                    this.errorData.mesageStatus = "Exito";
-                    this.errorData.mensage = "No se encontraron errores en los datos puede continuar";
-                    this.errorData.continuar = true;
-                } else {
-                    this.errorData.mesageStatus = "Error";
-                    this.errorData.mensage = "Error encontrado en la filas marcadas en rojo, favor corregir y" + " subir archivo de nuevo";
-                    this.errorData.continuar = false;
-                }
-            };
-            this.mayorFecha = function (a, b) {
-                return moment(a, "DD/MM/YYYY").diff(moment(b, "DD/MM/YYYY")) > 0;
-            };
-            this.savePersona = function (persona) {
-                persona.datosPension = this.cvs;
-                console.log(persona);
-                $http({
-                    method: 'POST',
-                    url: 'personas/nueva',
-                    data: { persona: persona }
-                }).then(function () {
-                    $state.go('personas', {});
-                });
-            };
-        },
-        controllerAs: "nuevaPersonaCtrl"
-    }).state("id", {
-        url: "/:idPersona",
-        templateUrl: "templates/infomacion-persona.html",
-        resolve: {
-            personaService: function personaService($http, $stateParams) {
-                console.log($stateParams.idPersona);
-                return $http.get($stateParams.idPersona);
-            }
-        },
-
-        controller: function controller(personaService, $state, $http, $stateParams, $scope) {
-            this.gridOptions = {
-                enableSorting: false,
-                headerCellClass: 'text-justify',
-                columnDefs: [{
-                    field: 'fechaHasta',
-                    displayName: 'Fecha \ndesde',
-                    cellClass: "text-justify",
-                    width: "*",
-                    enableCellEdit: true
-                }, { field: 'fechaHasta', displayName: 'Fecha  hasta', cellClass: "text-justify", width: "*" }, {
-                    field: 'IBC',
-                    displayName: 'IBC',
-                    cellClass: "text-justify",
-                    width: "*",
-                    cellFilter: 'currency',
-                    enableCellEdit: true
-                }, { field: 'year', displayName: 'Año', cellClass: "text-justify", width: "*", visible: false }, { field: 'diasEntre', displayName: 'Dias entre fechas', cellClass: "text-justify", width: "*", visible: false }, {
-                    field: 'semanasAcumuladas',
-                    displayName: 'Nº semanas acumuladas',
-                    cellClass: "text-justify",
-                    width: "*",
-                    cellFilter: 'number: 0'
-                }, { field: 'factorIPC', displayName: 'Factor  IPC', cellClass: "text-justify", width: "*" }, {
-                    field: 'salarioActualizado',
-                    displayName: 'Salario  actualizado',
-                    cellClass: "text-justify",
-                    width: "*",
-                    cellFilter: 'number: 3'
-                }, {
-                    field: 'IBLtlv',
-                    displayName: 'IBL toda la vida',
-                    cellClass: "text-justify",
-                    width: "*",
-                    cellFilter: 'number: 2'
-                }, {
-                    field: 'numDias10Y',
-                    displayName: 'Nº dias 10 años',
-                    cellClass: "text-justify",
-                    width: "*"
-                }, {
-                    field: 'IBL10Y',
-                    displayName: 'IBL 10 años',
-                    cellClass: "text-justify",
-                    width: "*",
-                    cellFilter: 'number: 2'
-                }, { field: 'numDiasuY', displayName: 'Nº dias 1 años', cellClass: "text-justify", width: "*" }, {
-                    field: 'IBLuy',
-                    displayName: 'IBL 1 años',
-                    cellClass: "text-justify",
-                    width: "*",
-                    cellFilter: 'number: 2'
-                }],
-                data: personaService.data.datosPension,
-                enableGridMenu: true,
-                enableSelectAll: true,
-                exporterCsvFilename: personaService.data.documento + "-" + personaService.data.nombre + '.csv',
-                exporterCsvLinkElement: _angular2.default.element(document.querySelectorAll(".custom-csv-link-location")),
-                onRegisterApi: function onRegisterApi(gridApi) {
-                    this.gridApi = gridApi;
-
-                    gridApi.edit.on.afterCellEdit($scope, function (rowEntity, colDef, newValue, oldValue) {
-                        $scope.msg.lastCellEdited = 'edited row id:' + rowEntity.id + ' Column:' + colDef.name + ' newValue:' + newValue + ' oldValue:' + oldValue;
-                    });
-                }
-            };
-            this.persona = personaService.data;
-            this.fechasEdit = {
-                nacimiento: moment(personaService.data.fechaNacimiento, "DD/MM/YYYY").format("YYYY-MM-DD"),
-                liquidacion: moment(personaService.data.fechaLiquidacion, "DD/MM/YYYY").format("YYYY-MM-DD")
-            };
-
-            this.edit = false;
-            this.cancelar = function () {
-                this.edit = !this.edit;
-                if (!this.edit) {
-                    this.persona = _angular2.default.copy(this.backup);
-                    delete this.backup;
-                }
-            };
-            this.editConfirm = function (persona) {
-                this.backup = _angular2.default.copy(persona);
-                this.edit = !this.edit;
-                var that = this;
-                console.log(this.fechasEdit.nacimiento);
-                if (!this.edit) {
-                    persona.fechaNacimiento = persona.fechaNacimiento2;
-                    persona.fechaLiquidacion = persona.fechaLiquidacion2;
-                    delete persona.fechaNacimiento2;
-                    delete persona.fechaLiquidacion2;
-                    console.log("guardando persona");
-                    $http({
-                        method: 'POST',
-                        url: 'editar/' + $stateParams.idPersona,
-                        data: { persona: persona }
-                    }).then(function () {
-                        $http.get($stateParams.idPersona).then(function (res) {
-                            that.persona = res.data;
-                            that.fechasEdit = {
-                                nacimiento: moment(personaService.data.fechaNacimiento, "DD/MM/YYYY").format("YYYY-MM-DD"),
-                                liquidacion: moment(personaService.data.fechaLiquidacion, "DD/MM/YYYY").format("YYYY-MM-DD")
-                            };
-                        });
-                        delete that.backup;
-                    });
-                }
-            };
-            this.borrarPersona = function () {
-                return $http.get("/borrar/" + $stateParams.idPersona).then(function () {
-                    $state.go('personas', {});
-                });
-            };
-            this.export = function () {
-                var grid = this.gridApi.grid;
-                var rowTypes = uiGridExporterConstants.ALL;
-                var colTypes = uiGridExporterConstants.ALL;
-                this.gridApi.exporter.csvExport(rowTypes, colTypes, grid);
-            };
-        },
-        controllerAs: "personCtrl"
-    });
-}).directive('onReadFile', function ($parse) {
-    return {
-        restrict: 'A',
-        scope: false,
-        link: function link(scope, element, attrs) {
-            console.log("Reading-file");
-            var fn = $parse(attrs.onReadFile);
-            element.on('change', function (onChangeEvent) {
-                var reader = new FileReader();
-                reader.onload = function (onLoadEvent) {
-                    scope.$apply(function () {
-                        fn(scope, { $fileContent: onLoadEvent.target.result });
-                    });
-                };
-                reader.readAsText((onChangeEvent.srcElement || onChangeEvent.target).files[0]);
-            });
-        }
-    };
-});
-
-},{"../../server/dataClass":7,"angular":5,"angular-ui-grid":2,"angular-ui-router":3,"moment":6}],2:[function(require,module,exports){
 /*!
  * ui-grid - v4.0.1 - 2016-12-15
  * Copyright (c) 2016 ; License: MIT 
@@ -29168,7 +28883,7 @@ angular.module('ui.grid').run(['$templateCache', function($templateCache) {
 
 }]);
 
-},{}],3:[function(require,module,exports){
+},{}],2:[function(require,module,exports){
 /**
  * State-based routing for AngularJS
  * @version v0.3.2
@@ -33778,7 +33493,7 @@ angular.module('ui.router.state')
   .filter('isState', $IsStateFilter)
   .filter('includedByState', $IncludedByStateFilter);
 })(window, window.angular);
-},{}],4:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 /**
  * @license AngularJS v1.6.1
  * (c) 2010-2016 Google, Inc. http://angularjs.org
@@ -66761,11 +66476,11 @@ $provide.value("$locale", {
 })(window);
 
 !window.angular.$$csp().noInlineStyle && window.angular.element(document.head).prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\\:form{display:block;}.ng-animate-shim{visibility:hidden;}.ng-anchor{position:absolute;}</style>');
-},{}],5:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 require('./angular');
 module.exports = angular;
 
-},{"./angular":4}],6:[function(require,module,exports){
+},{"./angular":3}],5:[function(require,module,exports){
 //! moment.js
 //! version : 2.17.1
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors
@@ -71068,684 +70783,288 @@ return hooks;
 
 })));
 
-},{}],7:[function(require,module,exports){
-/**
- * Created by sergiodiazpinilla on 15/12/16.
- */
-"use strict";
+},{}],6:[function(require,module,exports){
+'use strict';
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _angular = require('angular');
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+var _angular2 = _interopRequireDefault(_angular);
 
-var moment = require("moment");
+require('angular-ui-router');
 
-var Persona = function () {
-    function Persona(nombre, documento, genero, fechaNacimiento, regimen, correo, anotaciones, tipoCotizacion, fechaLiquidacion) {
-        _classCallCheck(this, Persona);
+require('angular-ui-grid');
 
-        this.nombre = nombre;
-        this.documento = documento;
-        this.genero = genero;
-        this.fechaNacimiento = moment(fechaNacimiento).format("DD/MM/YYYY");
-        this.regimen = regimen || "NODEFINIDO";
-        this.correo = correo || "Sin email";
-        this.anotaciones = anotaciones || "";
-        this.tipoCotizacion = tipoCotizacion || 1;
-        this.fechaLiquidacion = moment(fechaLiquidacion).format("DD/MM/YYYY");
-        this.datosDecision = new DatosDecision(moment(this.fechaNacimiento, "DD/MM/YYYY"));
-        this.datosLiquidacion = new DatosLiquidacion();
-        this.datosPension = [];
-    }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-    _createClass(Persona, [{
-        key: "toString",
-        value: function toString() {
-            return '\nNombre: ' + this.nombre + '\nDocumento: ' + this.documento + '\nGenero: ' + this.genero + '\nRegimen: ' + this.regimen + '\nDatosDecicion\n----------------' + this.datosDecision + '\n-------------------\nDatosLiquidacion\n----------------' + this.datosLiquidacion + this.correo + this.anotaciones;
-        }
-    }]);
+var moment = require('moment'); /**
+                                 * Created by sergiodiazpinilla on 29/11/16.
+                                 */
 
-    return Persona;
-}();
 
-var DatosDecision = function () {
-    function DatosDecision(fechaNacimiento, totalSemanasCotizadas, semanas1994, semanas2005) {
-        _classCallCheck(this, DatosDecision);
-
-        var year1994 = moment("1/04/1994", "DD/MM/YYYY");
-        this.edad1994 = year1994.diff(fechaNacimiento, "years") || 0;
-
-        this.totalSemanasCotizadas = totalSemanasCotizadas || 0;
-        this.semanas1994 = semanas1994 || 0;
-        this.semanas2005 = semanas2005 || 0;
-    }
-
-    _createClass(DatosDecision, [{
-        key: "toString",
-        value: function toString() {
-            return '\nedad1994: ' + this.edad1994 + '\ntotalSemanasCotizadas: ' + this.totalSemanasCotizadas + '\nsemanas1994: ' + this.semanas1994 + '\nsemanas2005: ' + this.semanas2005;
-        }
-    }]);
-
-    return DatosDecision;
-}();
-
-/**
- * pIBLtv => promedioIBLtodaVida
- * pIBL10A => promedioIBLultimos10years
- * pIBLuA =>promedioIBLultimoYear
- * monto
- * montoLey => montoLey797
- * nSalariosMin
- * valorPensionDecreto
- * valorPensionLey
- * valorPensionPublicos
- * valorPensionAportes
- * fechaCumplimiento
- */
-
-var DatosLiquidacion = function () {
-    function DatosLiquidacion() {
-        _classCallCheck(this, DatosLiquidacion);
-
-        this.pIBLtv = 0;
-        this.pIBL10A = 0;
-        this.pIBLuA = 0;
-        this.monto = 0;
-        this.montoLey = 0;
-        this.nSalariosMin = 0;
-        this.valorPensionDecreto = 0;
-        this.valorPensionLey = 0;
-        this.valorPensionPublicos = 0;
-        this.valorPensionAportes = 0;
-        this.fechaCumplimiento = "10/10/10";
-    }
-
-    _createClass(DatosLiquidacion, [{
-        key: "toString",
-        value: function toString() {
-            return '\npromedioIBLtodaVida: ' + this.pIBLtv + '\npromedioIBLultimos10years: ' + this.pIBL10A + '\npromedioIBLultimoYear: ' + this.pIBLuA + '\nMonto:' + this.monto + '\nMontoLey797: ' + this.montoLey + '%\nNumeroSalariosMinimos: ' + this.nSalariosMin + '\nValorPensionDecreto758: ' + this.valorPensionDecreto + '\nValorPensionley797: ' + this.valorPensionLey + '\nvalorPensionPublicos: ' + this.valorPensionPublicos + '\nValorPensionAportes: ' + this.valorPensionAportes + '\nFechaCumplimiento: ' + this.fechaCumplimiento;
-        }
-    }]);
-
-    return DatosLiquidacion;
-}();
-
-var Informacion = function () {
-    function Informacion(fechaDesde, fechaHasta, IBC) {
-        _classCallCheck(this, Informacion);
-
-        this.fechaDesde = fechaDesde;
-        this.fechaHasta = fechaHasta;
-        this.IBC = IBC;
-        this.year = 0;
-        this.diasEntre = 0;
-        this.semanasAcumuladas = 0;
-        this.factorIPC = 0;
-        this.salarioActualizado = 0;
-        this.IBLtlv = 0;
-        this.numDias10Y = 0;
-        this.IBL10Y = 0;
-        this.numDiasuY = 0;
-        this.IBLuy = 0;
-    }
-
-    _createClass(Informacion, [{
-        key: "toString",
-        value: function toString() {
-            return '|' + this.fechaDesde + '|' + this.fechaHasta + '|' + this.IBC + '|' + this.year + '|' + this.diasEntre + '|' + this.semanasAcumuladas + '|' + this.factorIPC + '|' + this.salarioActualizado + '|' + this.IBLtlv + '|' + this.numDias10Y + '|' + this.IBL10Y + '|' + this.numDiasuY + '|' + this.IBLuy;
-        }
-    }]);
-
-    return Informacion;
-}();
-
-var LiquidadorPension = function () {
-    function LiquidadorPension(persona) {
-        _classCallCheck(this, LiquidadorPension);
-
-        this.persona = persona || new Persona("nombre", 1234, "Masculino", "NOREGIMEN");
-        this.datosDecision = this.persona.datosDecision;
-        this.datosLiquidacion = this.persona.datosLiquidacion;
-        this.fechatr = "1/4/1994";
-        this.fechatr2 = "25/7/2003";
-        this.regimentr = false;
-        this.ipcData = {
-            "1968": 785.70175914,
-            "1969": 738.02532326,
-            "1970": 677.70920410,
-            "1971": 633.01812451,
-            "1972": 560.98734891,
-            "1973": 494.13137400,
-            "1974": 403.40548127,
-            "1975": 322.72438501,
-            "1976": 274.61230855,
-            "1977": 218.64037305,
-            "1978": 171.54992001,
-            "1979": 143.25671817,
-            "1980": 111.21552533,
-            "1981": 88.29431988,
-            "1982": 69.87521358,
-            "1983": 56.33734869,
-            "1984": 48.30019607,
-            "1985": 40.83547182,
-            "1986": 33.34869075,
-            "1987": 27.57229495,
-            "1988": 22.23213591,
-            "1989": 17.35258813,
-            "1990": 13.75879173,
-            "1991": 10.39497713,
-            "1992": 8.19663864,
-            "1993": 6.55049840,
-            "1994": 5.34298401,
-            "1995": 4.35841750,
-            "1996": 3.64843253,
-            "1997": 2.99961566,
-            "1998": 2.54895960,
-            "1999": 2.18419846,
-            "2000": 1.99963239,
-            "2001": 1.83874243,
-            "2002": 1.70807471,
-            "2003": 1.59648071,
-            "2004": 1.49918369,
-            "2005": 1.42102719,
-            "2006": 1.35529537,
-            "2007": 1.29718163,
-            "2008": 1.22734566,
-            "2009": 1.13991424,
-            "2010": 1.11756298,
-            "2011": 1.08322476,
-            "2012": 1.04427336,
-            "2013": 1.01940000,
-            "2014": 1.00000000
-        };
-        this.decreto748 = [[1050, 1099, 0.78], [1100, 1149, 0.81], [1150, 1199, 0.84], [1200, 1249, 0.87], [1250, 0, 0.90]];
-        this.leydata = {
-            2004: [[1050, 1099, 0.67], [1100, 1149, 0.69], [1150, 1199, 0.71], [1200, 1249, 0.73], [1250, 1299, 0.76], [1300, 1349, 0.79], [1350, 1399, 0.82], [1400, 0, 0.85]],
-            2005: [[1100, 1149, 0.665], [1150, 1199, 0.680], [1200, 1249, 0.695], [1250, 1299, 0.710], [1300, 1349, 0.725], [1350, 1399, 0.740], [1400, 1449, 0.755], [1450, 1499, 0.770], [1500, 1549, 0.785], [1550, 0, 0.800]],
-            2006: [[1125, 1174, 0.665], [1175, 1224, 0.680], [1225, 1274, 0.695], [1275, 1324, 0.710], [1325, 1374, 0.725], [1375, 1424, 0.740], [1425, 1474, 0.755], [1475, 1524, 0.770], [1525, 1574, 0.785], [1575, 0, 0.800]],
-            2007: [[1150, 1199, 0.665], [1200, 1249, 0.680], [1250, 1299, 0.695], [1300, 1349, 0.710], [1350, 1399, 0.725], [1400, 1449, 0.740], [1450, 1499, 0.755], [1500, 1549, 0.770], [1550, 1599, 0.785], [1600, 0, 0.800]],
-            2008: [[1175, 1224, 0.665], [1225, 1274, 0.680], [1275, 1324, 0.695], [1325, 1374, 0.710], [1375, 1424, 0.725], [1425, 1474, 0.740], [1475, 1524, 0.755], [1525, 1574, 0.770], [1575, 1624, 0.785], [1625, 0, 0.800]],
-            2009: [[1200, 1249, 0.665], [1250, 1299, 0.680], [1300, 1349, 0.695], [1350, 1399, 0.710], [1400, 1449, 0.725], [1450, 1499, 0.740], [1500, 1549, 0.755], [1550, 1599, 0.770], [1600, 1649, 0.785], [1650, 0, 0.800]],
-            2010: [[1125, 1174, 0.665], [1175, 1224, 0.680], [1225, 1274, 0.695], [1275, 1324, 0.710], [1325, 1374, 0.725], [1375, 1424, 0.740], [1425, 1474, 0.755], [1475, 1524, 0.770], [1525, 1574, 0.785], [1575, 1624, 0.800]],
-            2011: [[1250, 1299, 0.665], [1300, 1349, 0.680], [1350, 1399, 0.695], [1400, 1449, 0.710], [1450, 1499, 0.725], [1500, 1549, 0.740], [1550, 1599, 0.755], [1600, 1649, 0.770], [1650, 1699, 0.785], [1700, 1749, 0.800]],
-            2012: [[1125, 1174, 0.665], [1175, 1224, 0.680], [1225, 1274, 0.695], [1275, 1324, 0.710], [1325, 1374, 0.725], [1375, 1424, 0.740], [1425, 1474, 0.755], [1475, 1524, 0.770], [1525, 1574, 0.785], [1575, 1624, 0.800]],
-            2013: [[1125, 1174, 0.665], [1175, 1224, 0.680], [1225, 1274, 0.695], [1275, 1324, 0.710], [1325, 1374, 0.725], [1375, 1424, 0.740], [1425, 1474, 0.755], [1475, 1524, 0.770], [1525, 1574, 0.785], [1575, 1624, 0.800]],
-            2014: [[1325, 1374, 0.665], [1375, 1424, 0.680], [1425, 1474, 0.695], [1475, 1524, 0.710], [1525, 1574, 0.725], [1575, 1624, 0.740], [1625, 1674, 0.755], [1675, 1724, 0.770], [1725, 1774, 0.785], [1775, 0, 0.800]],
-            2015: [[1350, 1399, 0.665], [1400, 1449, 0.680], [1450, 1499, 0.695], [1500, 1549, 0.710], [1550, 1599, 0.725], [1600, 1649, 0.740], [1650, 1699, 0.755], [1700, 1749, 0.770], [1750, 1799, 0.785], [1800, 0, 0.800]]
-        };
-        this.smv = {
-            1991: 51720.0,
-            1992: 65190.0,
-            1993: 81510.0,
-            1994: 98700.0,
-            1995: 118170.0,
-            1996: 142125.0,
-            1997: 172005.0,
-            1998: 203825.0,
-            1999: 236438.0,
-            2000: 260100.0,
-            2001: 286000.0,
-            2002: 309000.0,
-            2003: 332000.0,
-            2004: 358000.0,
-            2005: 381500.0,
-            2006: 408000.0,
-            2007: 433700.0,
-            2008: 461500.0,
-            2009: 496900.0,
-            2010: 515000.0,
-            2011: 535600.0,
-            2012: 566700.0,
-            2013: 589500.0,
-            2014: 616000.0,
-            2015: 644350.0
-        };
-    }
-
-    _createClass(LiquidadorPension, [{
-        key: "calcularPension",
-        value: function calcularPension() {
-
-            if (this.validaciones()) {
-                this.calculos();
-                this.regimentr = this.regimen();
-                this.liquidacion();
-                this.resumen();
-            }
-        }
-    }, {
-        key: "validaciones",
-        value: function validaciones() {
-            for (var i = 0; i < this.persona.datosPension.length; i++) {
-                var row = this.persona.datosPension[i];
-                if (this.mayorFecha(row.fechaDesde, this.persona.datosPension[this.persona.datosPension.length - 1])) {
-                    //TODO mensjage error
-                    console.log("Fecha Inicial menor a Fecha Final fila anterior Fila-" + i);
-                    return false;
-                }
-                if (i > 0) {
-                    var _lastRow = this.persona.datosPension[i - 1];
-                    if (!this.mayorFecha(row.fechaDesde, _lastRow.fechaHasta)) {
-                        //TODO mensjage error
-                        console.log("Fecha Inicial menor a Fecha Final fila anterior Fila-" + i);
-                        return false;
+_angular2.default.module('pensiones', ["ui.router", "ui.grid", "ui.grid.autoResize", 'ui.grid.exporter', 'ui.grid.edit']).config(function ($stateProvider, $urlRouterProvider) {
+    $urlRouterProvider.otherwise("/");
+    $stateProvider.state("login", {
+        url: "/",
+        templateUrl: "../views/LiquidacionPension/login.html",
+        params: { errorMessage: "" },
+        controller: function controller($state, $stateParams, $http) {
+            this.errorMessage = $stateParams.errorMessage;
+            this.login = function (admin) {
+                $http({
+                    method: 'POST',
+                    url: 'login',
+                    data: { admin: admin }
+                }).then(function (response) {
+                    if (!response.data.error) {
+                        $state.go('personas', {});
+                    } else {
+                        $state.go('login', { errorMessage: "Usuario o contraseña invalido" });
                     }
-                    if (!this.mayorFecha(row.fechaDesde, _lastRow.fechaDesde)) {
-                        //TODO mensjage error
-                        console.log("Fecha Inicial menor a Fecha Inicial fila anterior Fila-" + i);
-                        return false;
+                });
+            };
+        },
+        controllerAs: "loginCtrl"
+    }).state("personas", {
+        url: "/personas",
+        templateUrl: "../views/LiquidacionPension/personas-nav.html",
+        resolve: {
+            personasService: function personasService($http) {
+                return $http.get("/personas");
+            }
+        },
+        controller: function controller(personasService) {
+            this.personas = personasService.data;
+        },
+        controllerAs: "personasCtrl"
+
+    }).state("nueva-persona", {
+        url: "/nuevo-persona",
+        templateUrl: "../views/LiquidacionPension/agregar-persona.html",
+        controller: function controller($state, $http) {
+            this.errorData = {
+                mesageStatus: " ",
+                mensage: "Favor ingresar archivo .cvs con los siguientes cabecera, fechaDesde,fechaHasta,IBC",
+                errorNumber: 0,
+                continuar: false
+            };
+
+            this.validarData = function ($fileContent) {
+                this.cvs = this.csvJSON($fileContent.toString());
+                this.validarTabla(this.cvs);
+                _angular2.default.element("input[type='file']").val(null);
+            };
+            this.csvJSON = function (csv) {
+                var lines = csv.replace(/\r/g, '').split("\n");
+                var result = [];
+                var headers = lines[0].split(";");
+                for (var i = 1; i < lines.length; i++) {
+                    var obj = {};
+                    var currentline = lines[i].split(";");
+                    for (var j = 0; j < headers.length; j++) {
+                        obj[headers[j]] = currentline[j];
+                    }
+                    result.push(obj);
+                }
+                return result; //JavaScript object
+                //return JSON.stringify(result); //JSON
+            };
+            this.validarTabla = function (data) {
+                this.errorData.mensage = "";
+                this.errorData.errorNumber = 0;
+                for (var i = 0; i < data.length; i++) {
+                    var row = data[i];
+                    if (this.mayorFecha(row.fechaDesde, data[data.length - 1].fechaDesde)) {
+                        row.error = true;
+                        this.errorData.errorNumber++;
+                    }
+                    if (i > 0) {
+                        var lastRow = data[i - 1];
+                        if (!this.mayorFecha(row.fechaDesde, lastRow.fechaHasta)) {
+                            row.error = true;
+                            this.errorData.errorNumber++;
+                        }
+
+                        if (!this.mayorFecha(row.fechaDesde, lastRow.fechaDesde)) {
+                            lastRow.error = true;
+                            this.errorData.errorNumber++;
+                        }
                     }
                 }
-            }
-            return true;
-        }
-    }, {
-        key: "mayorFecha",
-        value: function mayorFecha(a, b) {
-            return moment(a, "DD/MM/YYYY").diff(moment(b, "DD/MM/YYYY")) > 0;
-        }
-    }, {
-        key: "mayorIgualFecha",
-        value: function mayorIgualFecha(a, b) {
-            return moment(a, "DD/MM/YYYY").diff(moment(b, "DD/MM/YYYY")) >= 0;
-        }
-    }, {
-        key: "calculos",
-        value: function calculos() {
-            for (var i = 0; i < this.persona.datosPension.length; i++) {
-                var row = this.persona.datosPension[i];
-                row.year = moment(row.fechaHasta, "DD/MM/YYYY").year();
-                //Diferencia en dias
-                row.diasEntre = Math.abs(moment(row.fechaDesde, "DD/MM/YYYY").diff(moment(row.fechaHasta, "DD/MM/YYYY"), "days")) + 1;
-                if (i == 0) {
-                    row.semanasAcumuladas = row.diasEntre / 7;
+                if (this.errorData.errorNumber === 0) {
+                    this.errorData.mesageStatus = "Exito";
+                    this.errorData.mensage = "No se encontraron errores en los datos puede continuar";
+                    this.errorData.continuar = true;
                 } else {
-                    var _lastRow2 = this.persona.datosPension[i - 1];
-                    row.semanasAcumuladas = _lastRow2.semanasAcumuladas + row.diasEntre / 7;
+                    this.errorData.mesageStatus = "Error";
+                    this.errorData.mensage = "Error encontrado en la filas marcadas en rojo, favor corregir y" + " subir archivo de nuevo";
+                    this.errorData.continuar = false;
                 }
-                row.factorIPC = this.ipcData[row.year];
-                row.salarioActualizado = row.IBC * row.factorIPC;
-                row.IBLtlv = row.salarioActualizado * row.diasEntre;
+            };
+            this.mayorFecha = function (a, b) {
+                return moment(a, "DD/MM/YYYY").diff(moment(b, "DD/MM/YYYY")) > 0;
+            };
+            this.savePersona = function (persona) {
+                persona.datosPension = this.cvs;
+                console.log(persona);
+                $http({
+                    method: 'POST',
+                    url: 'personas/nueva',
+                    data: { persona: persona }
+                }).then(function () {
+                    $state.go('personas', {});
+                });
+            };
+        },
+        controllerAs: "nuevaPersonaCtrl"
+    }).state("id", {
+        url: "/persona/:idPersona",
+        templateUrl: "../views/LiquidacionPension/infomacion-persona.html",
+        resolve: {
+            personaService: function personaService($http, $stateParams, $state) {
+                console.log($stateParams.idPersona);
+                return $http.get("persona/" + $stateParams.idPersona);
             }
+        },
+
+        controller: function controller(personaService, $state, $http, $stateParams, $scope) {
+            this.gridOptions = {
+                enableSorting: false,
+                headerCellClass: 'text-justify',
+                columnDefs: [{
+                    field: 'fechaHasta',
+                    displayName: 'Fecha \ndesde',
+                    cellClass: "text-justify",
+                    width: "*",
+                    enableCellEdit: true
+                }, { field: 'fechaHasta', displayName: 'Fecha  hasta', cellClass: "text-justify", width: "*" }, {
+                    field: 'IBC',
+                    displayName: 'IBC',
+                    cellClass: "text-justify",
+                    width: "*",
+                    cellFilter: 'currency',
+                    enableCellEdit: true
+                }, { field: 'year', displayName: 'Año', cellClass: "text-justify", width: "*", visible: false }, { field: 'diasEntre', displayName: 'Dias entre fechas', cellClass: "text-justify", width: "*", visible: false }, {
+                    field: 'semanasAcumuladas',
+                    displayName: 'Nº semanas acumuladas',
+                    cellClass: "text-justify",
+                    width: "*",
+                    cellFilter: 'number: 0'
+                }, { field: 'factorIPC', displayName: 'Factor  IPC', cellClass: "text-justify", width: "*" }, {
+                    field: 'salarioActualizado',
+                    displayName: 'Salario  actualizado',
+                    cellClass: "text-justify",
+                    width: "*",
+                    cellFilter: 'number: 3'
+                }, {
+                    field: 'IBLtlv',
+                    displayName: 'IBL toda la vida',
+                    cellClass: "text-justify",
+                    width: "*",
+                    cellFilter: 'number: 2'
+                }, {
+                    field: 'numDias10Y',
+                    displayName: 'Nº dias 10 años',
+                    cellClass: "text-justify",
+                    width: "*"
+                }, {
+                    field: 'IBL10Y',
+                    displayName: 'IBL 10 años',
+                    cellClass: "text-justify",
+                    width: "*",
+                    cellFilter: 'number: 2'
+                }, { field: 'numDiasuY', displayName: 'Nº dias 1 años', cellClass: "text-justify", width: "*" }, {
+                    field: 'IBLuy',
+                    displayName: 'IBL 1 años',
+                    cellClass: "text-justify",
+                    width: "*",
+                    cellFilter: 'number: 2'
+                }],
+                data: personaService.data.datosPension,
+                enableGridMenu: true,
+                enableSelectAll: true,
+                exporterCsvFilename: personaService.data.documento + "-" + personaService.data.nombre + '.csv',
+                exporterCsvLinkElement: _angular2.default.element(document.querySelectorAll(".custom-csv-link-location")),
+                onRegisterApi: function onRegisterApi(gridApi) {
+                    this.gridApi = gridApi;
+
+                    gridApi.edit.on.afterCellEdit($scope, function (rowEntity, colDef, newValue, oldValue) {
+                        $scope.msg.lastCellEdited = 'edited row id:' + rowEntity.id + ' Column:' + colDef.name + ' newValue:' + newValue + ' oldValue:' + oldValue;
+                    });
+                }
+            };
+            this.persona = personaService.data;
+            this.fechasEdit = {
+                nacimiento: moment(personaService.data.fechaNacimiento, "DD/MM/YYYY").format("YYYY-MM-DD"),
+                liquidacion: moment(personaService.data.fechaLiquidacion, "DD/MM/YYYY").format("YYYY-MM-DD")
+            };
+
+            this.edit = false;
+            this.cancelar = function () {
+                this.edit = !this.edit;
+                if (!this.edit) {
+                    this.persona = _angular2.default.copy(this.backup);
+                    delete this.backup;
+                }
+            };
+            this.editConfirm = function (persona) {
+                this.backup = _angular2.default.copy(persona);
+                this.edit = !this.edit;
+                var that = this;
+                console.log(this.fechasEdit.nacimiento);
+                if (!this.edit) {
+                    persona.fechaNacimiento = persona.fechaNacimiento2;
+                    persona.fechaLiquidacion = persona.fechaLiquidacion2;
+                    delete persona.fechaNacimiento2;
+                    delete persona.fechaLiquidacion2;
+                    console.log("guardando persona");
+                    $http({
+                        method: 'POST',
+                        url: 'editar/' + $stateParams.idPersona,
+                        data: { persona: persona }
+                    }).then(function () {
+                        $http.get($stateParams.idPersona).then(function (res) {
+                            that.persona = res.data;
+                            that.fechasEdit = {
+                                nacimiento: moment(personaService.data.fechaNacimiento, "DD/MM/YYYY").format("YYYY-MM-DD"),
+                                liquidacion: moment(personaService.data.fechaLiquidacion, "DD/MM/YYYY").format("YYYY-MM-DD")
+                            };
+                        });
+                        delete that.backup;
+                    });
+                }
+            };
+            this.borrarPersona = function () {
+                return $http.get("/borrar/" + $stateParams.idPersona).then(function () {
+                    $state.go('personas', {});
+                });
+            };
+            this.export = function () {
+                var grid = this.gridApi.grid;
+                var rowTypes = uiGridExporterConstants.ALL;
+                var colTypes = uiGridExporterConstants.ALL;
+                this.gridApi.exporter.csvExport(rowTypes, colTypes, grid);
+            };
+        },
+        controllerAs: "personCtrl"
+    });
+}).directive('onReadFile', function ($parse) {
+    return {
+        restrict: 'A',
+        scope: false,
+        link: function link(scope, element, attrs) {
+            console.log("Reading-file");
+            var fn = $parse(attrs.onReadFile);
+            element.on('change', function (onChangeEvent) {
+                var reader = new FileReader();
+                reader.onload = function (onLoadEvent) {
+                    scope.$apply(function () {
+                        fn(scope, { $fileContent: onLoadEvent.target.result });
+                    });
+                };
+                reader.readAsText((onChangeEvent.srcElement || onChangeEvent.target).files[0]);
+            });
         }
-    }, {
-        key: "regimen",
-        value: function regimen() {
-            //Si el regimen de trancicion es de ley 100
-            for (var i = 0; i < this.persona.datosPension.length; i++) {
-                var row = this.persona.datosPension[i];
-                if (this.mayorIgualFecha(moment(this.fechatr, "DD/MM/YYYY"), moment(row.fechaDesde, "DD/MM/YYYY")) && moment(this.fechatr, "DD/MM/YYYY"), moment(row.fechaHasta, "DD/MM/YYYY")) {
-                    if (this.fechatr === row.fechaHasta) {
-                        this.datosDecision.semanas1994 = row.semanasAcumuladas;
-                        break;
-                    }
-                    if (i != 0) {
-                        var _lastRow3 = this.persona.datosPension[i - 1];
-                        if (this.fechatr === row.fechaDesde && i != 0) {
-                            this.datosDecision.semanas1994 = _lastRow3.semanasAcumuladas;
-                            this.datosDecision.semanas1994 += 1 / 7;
-                            break;
-                        }
-                        if (this.mayorFecha(moment(this.fechatr, "DD/MM/YYYY"), moment(row.fechaDesde, "DD/MM/YYYY")) && !this.mayorIgualFecha(moment(this.fechatr, "DD/MM/YYYY"), moment(row.fechaHasta, "DD/MM/YYYY"))) {
-                            this.datosDecision.semanas1994 = _lastRow3.semanasAcumuladas;
-                            this.datosDecision.semanas1994 += moment(this.fechatr, "DD/MM/YYYY").diff(moment(row.fechaDesde, "DD/MM/YYYY"), "days") / 7;
-                            break;
-                        }
-                    }
-                }
-                if (i != 0) {
-                    if (!this.mayorFecha(moment(this.fechatr, "DD/MM/YYYY"), moment(row.fechaDesde, "DD/MM/YYYY")) && !this.mayorFecha(moment(this.fechatr, "DD/MM/YYYY"), moment(row.fechaHasta, "DD/MM/YYYY"))) {
-                        var _lastRow4 = this.persona.datosPension[i - 1];
-                        this.datosDecision.semanas1994 = _lastRow4.semanasAcumuladas;
-                        break;
-                    }
-                }
-            }
-            if (this.datosDecision.semanas1994 >= 750) {
-                return true;
-            }
-            //Regimen de transicion acto legislativo 1
-            for (var _i = 0; _i < this.persona.datosPension.length; _i++) {
-                var _row = this.persona.datosPension[_i];
-                if (this.mayorIgualFecha(moment(this.fechatr2, "DD/MM/YYYY"), moment(_row.fechaDesde, "DD/MM/YYYY")) && moment(this.fechatr, "DD/MM/YYYY"), moment(_row.fechaHasta, "DD/MM/YYYY")) {
-                    if (this.fechatr2 === _row.fechaHasta) {
-                        this.datosDecision.semanas2005 = _row.semanasAcumuladas;
-                        break;
-                    }
-                    if (_i != 0) {
-                        var _lastRow5 = this.persona.datosPension[_i - 1];
-                        if (this.fechatr2 === _row.fechaDesde && _i != 0) {
-                            this.datosDecision.semanas2005 = _lastRow5.semanasAcumuladas;
-                            this.datosDecision.semanas2005 += 1 / 7;
-                            break;
-                        }
-                        if (this.mayorFecha(moment(this.fechatr2, "DD/MM/YYYY"), moment(_row.fechaDesde, "DD/MM/YYYY")) && !this.mayorIgualFecha(moment(this.fechatr2, "DD/MM/YYYY"), moment(_row.fechaHasta, "DD/MM/YYYY"))) {
-                            this.datosDecision.semanas2005 = _lastRow5.semanasAcumuladas;
-                            this.datosDecision.semanas2005 += moment(this.fechatr2, "DD/MM/YYYY").diff(moment(_row.fechaDesde, "DD/MM/YYYY"), "days") / 7;
-                            break;
-                        }
-                    }
-                }
-                if (!this.mayorFecha(moment(this.fechatr, "DD/MM/YYYY"), moment(_row.fechaDesde, "DD/MM/YYYY")) && !this.mayorFecha(moment(this.fechatr, "DD/MM/YYYY"), moment(_row.fechaHasta, "DD/MM/YYYY"))) {
-                    if (_i != 0) {
-                        var _lastRow6 = this.persona.datosPension[_i - 1];
-                    }
-                    this.datosDecision.semanas2005 = lastRow.semanasAcumuladas;
-                    break;
-                }
-            }
-            if (this.datosDecision.semanas2005 >= 750) {
-                return true;
-            }
-            return false;
-        }
-    }, {
-        key: "liquidacion",
-        value: function liquidacion() {
-            this.persona.datosDecision.totalSemanasCotizadas = this.persona.datosPension[this.persona.datosPension.length - 1].semanasAcumuladas;
-            switch (this.persona.tipoCotizacion) {
-                case "1":
-                    this.privado();
-                    break;
-                case "2":
-                    this.publico();
-                    break;
-                case "3":
-                    this.aportes();
-                    break;
-                default:
-                    //todo Mensaje de error
-                    console.log("No definido");
-                    break;
-            }
-        }
-        //Aportes hechos por funcionarios privados
+    };
+});
 
-    }, {
-        key: "privado",
-        value: function privado() {
-            if (this.persona.datosDecision.totalSemanasCotizadas >= 1250) {
-                this.todaLaVida();
-                this.diezYears();
-                var valorpensiontv = this.persona.datosLiquidacion.pIBLtv * 0.9;
-                var valorpension10 = this.persona.datosLiquidacion.pIBL10A * 0.9;
-                if (valorpensiontv >= valorpension10) {
-                    this.datosLiquidacion.valorPensionDecreto = valorpensiontv;
-                    this.persona.regimen = "Decreto 758 de 1990 - IBL Toda la Vida";
-                } else {
-                    this.datosLiquidacion.valorPensionDecreto = valorpension10;
-                    this.persona.regimen = "Decreto 758 de 1990 - IBL 10 años >= 1250 semanas";
-                }
-            } else {
-                this.diezYears();
-                this.montoPension10();
-                this.persona.regimen = "Decreto 758 de 1990 - IBL 10 años";
-            }
-            this.ley797();
-            if (!this.regimentr) {
-                this.persona.regimen = "Ley 797 de 2003";
-            }
-        }
-        //SI EL TIPO DE APORTE ES PRIVADO EJECUTA ESTE PROCEDIMIENTO PARA DETERMINARL EL PROMEDIO DEL IBL DE LOS DIEZ ÚLTIMOS AÑOS
-
-    }, {
-        key: "todaLaVida",
-        value: function todaLaVida() {
-            var diastv = 0,
-                totalibltv = 0;
-            for (var i = 0; i < this.persona.datosPension.length; i++) {
-                var row = this.persona.datosPension[i];
-                diastv += row.diasEntre;
-                totalibltv += row.IBLtlv;
-            }
-            this.persona.datosLiquidacion.pIBLtv = totalibltv / diastv;
-        }
-        //SI EL TIPO DE APORTE ES PRIVADO EJECUTA ESTE PROCEDIMIENTO PARA DETERMINARL EL PROMEDIO DEL IBL DE LOS DIEZ ÚLTIMOS AÑOS
-
-    }, {
-        key: "diezYears",
-        value: function diezYears() {
-            var totalibl10 = 0,
-                diasDiezYears = 0,
-                diasDiferencia = 0;
-            for (var i = this.persona.datosPension.length - 1; i >= 0; i--) {
-                var row = this.persona.datosPension[i];
-                row.numDias10Y = row.diasEntre;
-                row.IBL10Y = row.IBLtlv;
-                totalibl10 += row.IBLtlv;
-                diasDiezYears += row.diasEntre;
-                if (diasDiezYears === 3650) {
-                    totalibl10 = totalibl10 / diasDiezYears;
-                    break;
-                }
-                if (diasDiezYears > 3650) {
-                    diasDiferencia = diasDiezYears - 3650;
-                    row.numDias10Y = row.diasEntre - diasDiferencia;
-                    diasDiezYears = diasDiezYears - row.diasEntre + row.numDias10Y;
-                    if (diasDiezYears != 3650) {
-                        console.log("TOTAL DIAS != 3650 Dirección de Ahorro Individual y Prima Media");
-                    }
-                    row.IBL10Y = row.salarioActualizado * row.numDias10Y;
-                    totalibl10 = totalibl10 - row.IBLtlv + row.IBL10Y;
-                    break;
-                }
-            }
-            this.persona.datosLiquidacion.pIBL10A = totalibl10 / diasDiezYears;
-        }
-    }, {
-        key: "montoPension10",
-        value: function montoPension10() {
-            //todo quite valorpension10 por si acaso
-            var porcentajepension = 0;
-            for (var i = 0; i < this.decreto748.length; i++) {
-                var row = this.decreto748[i];
-                if (this.datosDecision.totalSemanasCotizadas >= row[0] && this.datosDecision.totalSemanasCotizadas <= row[1]) {
-                    porcentajepension = row[2];
-                    break;
-                }
-                if (porcentajepension == 0) {
-                    console.log("PORCENTAJE DE PENSIÓN NO HALLADO-Dirección de Ahorro Individual y Prima Media");
-                }
-            }
-            this.datosLiquidacion.valorPensionDecreto = this.datosLiquidacion.pIBL10A * porcentajepension;
-        }
-    }, {
-        key: "ley797",
-        value: function ley797() {
-            var yeardata = this.leydata[moment(this.persona.fechaLiquidacion, "DD/MM/YYYY").year()];
-            console.log(this.persona.fechaLiquidacion);
-            console.log("Year" + moment(this.persona.fechaLiquidacion, "DD/MM/YYYY").year());
-            var porcentajeley = 0;
-            for (var i = 0; i < yeardata.length; i++) {
-                if (this.datosDecision.totalSemanasCotizadas >= yeardata[i][0] && this.datosDecision.totalSemanasCotizadas <= yeardata[i][1]) {
-                    porcentajeley = yeardata[i][2];
-                    break;
-                }
-            }
-            if (porcentajeley === 0) {
-                return 0;
-            }
-
-            this.datosLiquidacion.nSalariosMin = this.datosLiquidacion.pIBL10A / this.smv[moment(this.persona.fechaLiquidacion, "DD/MM/YYYY").year()];
-            porcentajeley = porcentajeley * 100;
-            this.datosLiquidacion.montoLey = porcentajeley - 0.5 * this.datosLiquidacion.nSalariosMin;
-            this.datosLiquidacion.valorPensionLey = this.datosLiquidacion.pIBL10A * this.datosLiquidacion.montoLey / 100;
-        }
-    }, {
-        key: "publico",
-        value: function publico() {
-            this.diezYears();
-            this.ultimoYear();
-        }
-    }, {
-        key: "ultimoYear",
-        value: function ultimoYear() {
-            var diasdiferencia = 0,
-                totalibluy = 0,
-                diasuy = 0;
-            for (var i = this.persona.datosPension.length - 1; i >= 0; i--) {
-                var row = this.persona.datosPension[i];
-                row.numDiasuY = row.diasEntre;
-                row.IBLuy = row.IBLtlv;
-                totalibluy += row.IBLtlv;
-                diasuy += row.diasEntre;
-                if (diasuy === 365) {
-                    totalibluy = totalibluy / diasuy;
-                    break;
-                }
-                if (diasuy > 365) {
-                    diasdiferencia = diasuy - 365;
-                    row.numDiasuY = row.diasEntre - diasdiferencia;
-                    diasuy = diasuy - row.diasEntre + row.numDiasuY;
-                    if (diasuy != 365) {
-                        //todo mensaje de error
-                        console.log("TOTAL DIAS != 360 Dirección de Ahorro Individual y Prima Media");
-                    }
-                    row.IBLuy = row.salarioActualizado * row.numDiasuY;
-                    totalibluy = totalibluy - row.IBLtlv + row.IBLuy;
-                    break;
-                }
-                this.datosLiquidacion.pIBLuA = totalibluy / diasuy;
-                this.datosLiquidacion.valorPensionPublicos = this.datosLiquidacion.pIBLuA * 0.75;
-            }
-        }
-    }, {
-        key: "aportes",
-        value: function aportes() {
-            this.diezYears();
-            this.datosLiquidacion.monto = 0.75;
-            this.datosLiquidacion.valorPensionAportes = this.datosLiquidacion.pIBL10A * this.datosLiquidacion.monto;
-            this.datosLiquidacion.valorPensionDecreto = this.datosLiquidacion.valorPensionAportes;
-        }
-    }, {
-        key: "resumen",
-        value: function resumen() {
-            if (this.persona.fechaNacimiento === "Femenino") {
-                this.datosLiquidacion.fechaCumplimiento = moment(this.persona.fechaNacimiento, "DD/MM/YYYY").add(55, 'years').format("DD/MM/YYYY").toString();
-            }
-            if (this.persona.genero === "Masculino") {
-                this.datosLiquidacion.fechaCumplimiento = moment(this.persona.fechaNacimiento, "DD/MM/YYYY").add(60, 'years').format("DD/MM/YYYY").toString();
-            }
-            //for(let i = 0;i<this.persona.datosPension.length;i++){
-            //console.log("|"+i+this.persona.datosPension[i].toString());
-            //console.log(this.persona.toString());
-            //}
-        }
-    }]);
-
-    return LiquidadorPension;
-}();
-
-module.exports = {
-    Persona: Persona,
-    Informacion: Informacion,
-    LiquidadorPension: LiquidadorPension
-};
-
-/**
- let pepe = new Persona("Pepe","123412312","Masculino","NOREGIMEN","2/11/1952",1,"27/02/14");
- let dataExample = [
- ["9/02/71","31/12/71","$ 1.290,00 "],
- ["1/01/72","30/06/72","$ 1.290,00 "],
- ["1/07/72","1/07/72","$ 1.290,00 "],
- ["10/07/72","31/12/72","$ 4.410,00 "],
- ["1/01/73","31/07/73","$ 4.410,00 "],
- ["1/08/73","31/12/73","$ 5.790,00 "],
- ["1/01/74","31/12/74","$ 5.790,00 "],
- ["1/01/75","12/01/75","$ 5.790,00 "],
- ["13/01/75","31/01/75","$ 13.260,00 "],
- ["1/02/75","31/07/75","$ 7.470,00 "],
- ["1/08/75","31/12/75","$ 9.480,00 "],
- ["1/01/76","29/02/76","$ 9.480,00 "],
- ["1/03/76","9/05/76","$ 11.850,00 "],
- ["12/05/76","31/12/76","$ 9.480,00 "],
- ["1/01/77","31/05/77","$ 9.480,00 "],
- ["1/06/77","31/08/77","$ 11.850,00 "],
- ["1/09/77","31/12/77","$ 17.790,00 "],
- ["1/01/78","8/05/78","$ 17.790,00 "],
- ["9/05/78","1/06/78","$ 25.530,00 "],
- ["2/06/78","31/12/78","$ 25.530,00 "],
- ["1/01/79","30/09/79","$ 25.530,00 "],
- ["1/10/79","31/12/79","$ 25.530,00 "],
- ["1/01/80","31/03/80","$ 25.530,00 "],
- ["15/10/81","31/12/81","$ 47.370,00 "],
- ["1/01/82","2/09/82","$ 47.370,00 "],
- ["6/09/82","30/10/82","$ 61.950,00 "],
- ["17/11/82","31/12/82","$ 79.290,00 "],
- ["1/01/83","30/09/83","$ 79.290,00 "],
- ["1/10/83","31/12/83","$ 79.290,00 "],
- ["1/01/84","31/03/84","$ 79.290,00 "],
- ["1/04/84","30/04/84","$ 136.290,00 "],
- ["1/05/84","15/10/84","$ 150.270,00 "],
- ["5/02/85","11/02/85","$ 14.610,00 "],
- ["12/02/85","31/05/85","$ 93.900,00 "],
- ["1/06/85","31/12/85","$ 165.180,00 "],
- ["1/01/86","31/12/86","$ 165.180,00 "],
- ["1/01/87","28/02/87","$ 165.180,00 "],
- ["1/03/87","31/12/87","$ 165.180,00 "],
- ["1/01/88","29/02/88","$ 165.180,00 "],
- ["1/03/88","16/06/88","$ 89.070,00 "],
- ["17/06/88","30/06/88","$ 130.110,00 "],
- ["1/07/88","31/08/88","$ 41.040,00 "],
- ["11/10/93","31/12/93","$ 977.550,00 "],
- ["1/01/94","28/02/94","$ 977.550,00 "],
- ["1/03/94","31/03/94","$ 1.000.000,00 "],
- ["1/04/94","31/12/94","$ 1.000.000,00 "],
- ["1/01/95","30/11/95","$ 1.000.000,00 "],
- ["1/12/95","30/12/95","$ 1.500.000,00 "],
- ["1/01/96","30/11/96","$ 1.000.000,00 "],
- ["1/12/96","30/12/96","$ 1.500.000,00 "],
- ["1/01/97","30/11/97","$ 1.000.000,00 "],
- ["1/12/97","30/12/97","$ 1.500.000,00 "],
- ["1/01/98","30/08/98","$ 1.000.000,00 "],
- ["1/09/98","30/09/98","$ 2.000.000,00 "],
- ["1/10/98","30/11/98","$ 1.000.000,00 "],
- ["1/12/98","30/12/98","$ 1.500.000,00 "],
- ["1/01/99","30/07/99","$ 1.000.000,00 "],
- ["1/08/99","6/08/99","$ 1.000.000,00 "],
- ["1/10/99","30/11/99","$ 1.000.000,00 "],
- ["1/12/99","30/12/99","$ 1.500.000,00 "],
- ["1/01/00","30/05/00","$ 1.000.000,00 "],
- ["1/06/00","30/06/00","$ 5.202.000,00 "],
- ["1/07/00","30/12/00","$ 2.800.000,00 "],
- ["1/01/01","1/01/01","$ 93.000,00 "],
- ["1/08/07","30/12/07","$ 1.701.000,00 "],
- ["1/01/08","29/01/08","$ 1.701.000,00 "],
- ["1/02/08","30/03/08","$ 1.701.000,00 "],
- ["1/04/08","29/04/08","$ 1.701.000,00 "],
- ["1/05/08","30/11/08","$ 1.701.000,00 "],
- ["1/01/09","28/02/09","$ 1.701.000,00 "],
- ["1/04/09","30/04/09","$ 1.701.000,00 "],
- ["1/06/09","30/10/09","$ 1.701.000,00 "],
- ["1/12/09","30/12/09","$ 1.701.000,00 "],
- ["1/01/10","30/01/10","$ 1.701.000,00 "],
- ["1/03/10","30/12/10","$ 1.701.000,00 "],
- ["1/01/11","30/12/11","$ 1.701.000,00 "],
- ["1/01/12","30/12/12","$ 1.701.000,00 "],
- ["1/01/13","30/12/13","$ 1.701.000,00 "]
- ];
- for(let i = 0;i<dataExample.length;i++){
-    let fehaDesde = dataExample[i][0];
-    let fechaHasta = dataExample[i][1];
-    let ipc = S(dataExample[i][2]).replaceAll("$ ","").replaceAll(".","").replaceAll(",",".");
-    pepe.datosPension.push(new Informacion(fehaDesde,fechaHasta,ipc));
-}
- //console.log("DATOS");
-
- let lq = new LiquidadorPension(pepe);
- lq.calcularPension();
- //console.log("------------------------------\n\n\nDATOS");
- //console.log(pepe.toString());
-
-
- mongoUtil.connect();
- setTimeout(towait,3000);
- function towait() {
-    mongoUtil.guardarPersona(pepe);
-}
-
-
- //mongoUtil.guardarPersona(pepe);*/
-
-},{"moment":6}]},{},[1]);
+},{"angular":4,"angular-ui-grid":1,"angular-ui-router":2,"moment":5}]},{},[6]);

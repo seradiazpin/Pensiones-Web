@@ -5,7 +5,6 @@ import angular from 'angular'
 import 'angular-ui-router';
 import 'angular-ui-grid';
 let moment = require('moment');
-let Liquidacion = require("../../server/dataClass").LiquidadorPension;
 
 angular.module('pensiones',["ui.router","ui.grid", "ui.grid.autoResize", 'ui.grid.exporter','ui.grid.edit'])
     .config(($stateProvider,$urlRouterProvider) => {
@@ -13,7 +12,7 @@ angular.module('pensiones',["ui.router","ui.grid", "ui.grid.autoResize", 'ui.gri
         $stateProvider
             .state("login",{
                 url: "/",
-                templateUrl:("templates/login.html"),
+                templateUrl:("../views/LiquidacionPension/login.html"),
                 params:{errorMessage : ""},
                 controller: function ($state,$stateParams,$http) {
                     this.errorMessage = $stateParams.errorMessage;
@@ -35,7 +34,7 @@ angular.module('pensiones',["ui.router","ui.grid", "ui.grid.autoResize", 'ui.gri
             })
             .state("personas",{
                 url:"/personas",
-                templateUrl : "templates/personas-nav.html",
+                templateUrl : "../views/LiquidacionPension/personas-nav.html",
                 resolve:{
                     personasService : function ($http) {
                         return $http.get("/personas");
@@ -49,7 +48,7 @@ angular.module('pensiones',["ui.router","ui.grid", "ui.grid.autoResize", 'ui.gri
             })
             .state("nueva-persona",{
                 url:"/nuevo-persona",
-                templateUrl:"templates/agregar-persona.html",
+                templateUrl:"../views/LiquidacionPension/agregar-persona.html",
                 controller : function ($state,$http) {
                     this.errorData = {
                         mesageStatus : " ",
@@ -129,12 +128,12 @@ angular.module('pensiones',["ui.router","ui.grid", "ui.grid.autoResize", 'ui.gri
                 controllerAs:"nuevaPersonaCtrl"
             })
             .state("id",{
-                url:"/:idPersona",
-                templateUrl:"templates/infomacion-persona.html",
+                url:"/persona/:idPersona",
+                templateUrl:"../views/LiquidacionPension/infomacion-persona.html",
                 resolve:{
-                    personaService:function ($http, $stateParams) {
+                    personaService:function ($http, $stateParams,$state) {
                         console.log($stateParams.idPersona);
-                        return $http.get($stateParams.idPersona);
+                        return $http.get("persona/"+$stateParams.idPersona);
                     }
                 },
 

@@ -5,7 +5,7 @@
   "main": "server/app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "gulp watch --gulpfile client/gulpfile.babel.js"
+    "watch": "gulp watch --gulpfile server/public/gulpfile.babel.js"
   },
   "author": "seradiazpin",
   "license": "ISC",
