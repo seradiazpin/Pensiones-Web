@@ -70838,7 +70838,7 @@ _angular2.default.module('pensiones', ["ui.router", "ui.grid", "ui.grid.autoResi
         controllerAs: "personasCtrl"
 
     }).state("nueva-persona", {
-        url: "/nuevo-persona",
+        url: "/personas/nueva",
         templateUrl: "../views/LiquidacionPension/agregar-persona.html",
         controller: function controller($state, $http) {
             this.errorData = {
@@ -70908,7 +70908,7 @@ _angular2.default.module('pensiones', ["ui.router", "ui.grid", "ui.grid.autoResi
                 console.log(persona);
                 $http({
                     method: 'POST',
-                    url: 'personas/nueva',
+                    url: '/personas/nueva',
                     data: { persona: persona }
                 }).then(function () {
                     $state.go('personas', {});
@@ -70917,12 +70917,12 @@ _angular2.default.module('pensiones', ["ui.router", "ui.grid", "ui.grid.autoResi
         },
         controllerAs: "nuevaPersonaCtrl"
     }).state("id", {
-        url: "/persona/:idPersona",
+        url: "/personas/:idPersona",
         templateUrl: "../views/LiquidacionPension/infomacion-persona.html",
         resolve: {
-            personaService: function personaService($http, $stateParams, $state) {
+            personaService: function personaService($http, $stateParams) {
                 console.log($stateParams.idPersona);
-                return $http.get("persona/" + $stateParams.idPersona);
+                return $http.get("/personas/" + $stateParams.idPersona);
             }
         },
 
@@ -71019,10 +71019,10 @@ _angular2.default.module('pensiones', ["ui.router", "ui.grid", "ui.grid.autoResi
                     console.log("guardando persona");
                     $http({
                         method: 'POST',
-                        url: 'editar/' + $stateParams.idPersona,
+                        url: '/personas/editar/' + $stateParams.idPersona,
                         data: { persona: persona }
                     }).then(function () {
-                        $http.get($stateParams.idPersona).then(function (res) {
+                        $http.get("/personas/" + $stateParams.idPersona).then(function (res) {
                             that.persona = res.data;
                             that.fechasEdit = {
                                 nacimiento: moment(personaService.data.fechaNacimiento, "DD/MM/YYYY").format("YYYY-MM-DD"),
