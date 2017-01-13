@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Programa que implementa funcionalidad de calculo de pensiones en Colombia",
   "main": "server/app.js",
+  "repository": "https://github.com/seradiazpin/Pensiones-Web.git",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "gulp watch --gulpfile server/public/gulpfile.babel.js"
@@ -22,12 +23,17 @@
     "angular-form-for": "^4.1.11",
     "angular-ui-grid": "^4.0.1",
     "angular-ui-router": "^0.3.2",
+    "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.15.2",
     "compare-dates": "^1.1.0",
     "express": "^4.14.0",
+    "express-session": "^1.14.2",
     "moment": "^2.17.1",
     "mongo": "^0.1.0",
     "mongodb": "^2.2.16",
+    "mongoose": "^4.7.6",
+    "passport": "^0.3.2",
+    "passport-local": "^1.0.0",
     "string": "^3.3.3"
   }
 }

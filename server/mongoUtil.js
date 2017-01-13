@@ -27,5 +27,17 @@ module.exports = {
                 console.log('Inserted %d documents into the "users" collection. The documents inserted with "_id" are:', result.length, result);
             }
         });
+    },
+    usuarios(){
+         return _db.collection("usuarios");
+    },
+    guardarUsuario(doc){
+        this.usuarios().insert(doc,function(err, result) {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log('Inserted %d documents into the "users" collection. The documents inserted with "_id" are:', result.length, result);
+            }
+        });
     }
-}
+};

@@ -25,6 +25,9 @@ class Persona{
 
 
     }
+    change(persona){
+
+    }
     toString(){
         return '\nNombre: '+this.nombre+ '\nDocumento: '+this.documento+'\nGenero: '+this.genero+
             '\nRegimen: '+this.regimen + '\nDatosDecicion\n----------------'+this.datosDecision+
