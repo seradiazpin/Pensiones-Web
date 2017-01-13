@@ -40,8 +40,23 @@ angular.module('pensiones',["ui.router","ui.grid", "ui.grid.autoResize", 'ui.gri
                         return $http.get("/personas");
                     }
                 },
-                controller : function (personasService) {
+                controller : function (personasService,$http,$stateParams) {
                     this.personas = personasService.data;
+                    this.delete = function (persona) {
+                        let that = this;
+                        $http({
+                            method : 'POST',
+                            url:'/personas/borrar/'+$stateParams.idPersona,
+                            data:{id:persona[1]}
+                        }).then(
+                            function (){
+                                let index = that.personas.indexOf(persona);
+                                if(index != -1) {
+                                    that.personas.splice(index, 1);
+                                }
+                            });
+
+                    }
                 },
                 controllerAs:"personasCtrl"
 
@@ -138,6 +153,17 @@ angular.module('pensiones',["ui.router","ui.grid", "ui.grid.autoResize", 'ui.gri
                 },
 
                 controller: function(personaService , $state , $http,$stateParams,$scope) {
+                    this.delete = function () {
+                        $http({
+                            method : 'POST',
+                            url:'/personas/borrar/'+$stateParams.idPersona,
+                            data:{id:this.persona.documento}
+                        }).then(
+                            function (){
+                                $state.go('personas',{});
+                            });
+
+                    };
                     this.gridOptions = {
                         enableSorting: false,
                         headerCellClass: 'text-justify',

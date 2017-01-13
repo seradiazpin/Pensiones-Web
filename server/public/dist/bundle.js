@@ -1,6 +1,10 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+require('./ui-grid');
+module.exports = 'ui.grid';
+
+},{"./ui-grid":2}],2:[function(require,module,exports){
 /*!
- * ui-grid - v4.0.1 - 2016-12-15
+ * ui-grid - v4.0.2 - 2016-12-30
  * Copyright (c) 2016 ; License: MIT 
  */
 
@@ -2121,8 +2125,15 @@ function ($compile, $timeout, $window, $document, gridUtil, uiGridConstants, i18
     templateUrl: 'ui-grid/uiGridMenu',
     replace: false,
     link: function ($scope, $elm, $attrs, uiGridCtrl) {
-
       $scope.dynamicStyles = '';
+      if (uiGridCtrl && uiGridCtrl.grid && uiGridCtrl.grid.options && uiGridCtrl.grid.options.gridMenuTemplate) {
+        var gridMenuTemplate = uiGridCtrl.grid.options.gridMenuTemplate;
+        gridUtil.getTemplate(gridMenuTemplate).then(function (contents) {
+          var template = angular.element(contents);
+          var newElm = $compile(template)($scope);
+          $elm.replaceWith(newElm);
+        });
+      }
 
       var setupHeightStyle = function(gridHeight) {
         //menu appears under header row, so substract that height from it's total
@@ -2139,7 +2150,7 @@ function ($compile, $timeout, $window, $document, gridUtil, uiGridConstants, i18
         setupHeightStyle(uiGridCtrl.grid.gridHeight);
         uiGridCtrl.grid.api.core.on.gridDimensionChanged($scope, function(oldGridHeight, oldGridWidth, newGridHeight, newGridWidth) {
           setupHeightStyle(newGridHeight);
-		});
+        });
       }
 
       $scope.i18n = {
@@ -2274,13 +2285,11 @@ function ($compile, $timeout, $window, $document, gridUtil, uiGridConstants, i18
         angular.element($window).on('resize', applyHideMenu);
       }
 
-      $scope.$on('$destroy', function () {
-        angular.element(document).off('click touchstart', applyHideMenu);
-      });
-
-
-      $scope.$on('$destroy', function() {
+      $scope.$on('$destroy', function unbindEvents() {
         angular.element($window).off('resize', applyHideMenu);
+        angular.element(document).off('click touchstart', applyHideMenu);
+        $elm.off('keyup', checkKeyUp);
+        $elm.off('keydown', checkKeyDown);
       });
 
       if (uiGridCtrl) {
@@ -3215,7 +3224,9 @@ function ($compile, $timeout, $window, $document, gridUtil, uiGridConstants, i18
             }
           }
 
-
+          $scope.$on('$destroy', function unbindEvents() {
+            $elm.off();
+          });
         },
         controller: ['$scope', function ($scope) {
           this.rowStyle = function (index) {
@@ -4785,7 +4796,7 @@ angular.module('ui.grid')
    * @methodOf ui.grid.class:Grid
    * @description returns the GridRow that contains the rowEntity
    * @param {object} rowEntity the gridOptions.data array element instance
-   * @param {array} rows [optional] the rows to look in - if not provided then
+   * @param {array} lookInRows [optional] the rows to look in - if not provided then
    * looks in grid.rows
    */
   Grid.prototype.getRow = function getRow(rowEntity, lookInRows) {
@@ -4850,13 +4861,20 @@ angular.module('ui.grid')
     self.rows.length = 0;
 
     newRawData.forEach( function( newEntity, i ) {
-      var newRow;
+      var newRow, oldRow;
+
       if ( self.options.enableRowHashing ){
         // if hashing is enabled, then this row will be in the hash if we already know about it
-        newRow = oldRowHash.get( newEntity );
+        oldRow = oldRowHash.get( newEntity );
       } else {
         // otherwise, manually search the oldRows to see if we can find this row
-        newRow = self.getRow(newEntity, oldRows);
+        oldRow = self.getRow(newEntity, oldRows);
+      }
+
+      // update newRow to have an entity
+      if ( oldRow ) {
+        newRow = oldRow;
+        newRow.entity = newEntity;
       }
 
       // if we didn't find the row, it must be new, so create it
@@ -8143,6 +8161,15 @@ angular.module('ui.grid')
        * </br>Refer to the custom row template tutorial for more information.
        */
       baseOptions.rowTemplate = baseOptions.rowTemplate || 'ui-grid/ui-grid-row';
+
+      /**
+      * @ngdoc string
+      * @name gridMenuTemplate
+      * @propertyOf ui.grid.class:GridOptions
+      * @description 'ui-grid/uiGridMenu' by default. When provided, this setting uses a
+      * custom grid menu template.
+      */
+      baseOptions.gridMenuTemplate = baseOptions.gridMenuTemplate || 'ui-grid/uiGridMenu';
 
       /**
        * @ngdoc object
@@ -11787,6 +11814,11 @@ module.service('gridUtil', ['$log', '$window', '$document', '$http', '$templateC
     for ( var i = mouseWheeltoBind.length; i; ) {
       $elm.on(mouseWheeltoBind[--i], cbs[fn]);
     }
+    $elm.on('$destroy', function unbindEvents() {
+      for ( var i = mouseWheeltoBind.length; i; ) {
+        $elm.off(mouseWheeltoBind[--i], cbs[fn]);
+      }
+    });
   };
   s.off.mousewheel = function (elm, fn) {
     var $elm = angular.element(elm);
@@ -16437,7 +16469,11 @@ module.filter('px', function() {
             });
 
 
-            $scope.$on( '$destroy', rowWatchDereg );
+            $scope.$on('$destroy', function destroyEvents() {
+              rowWatchDereg();
+              // unbind all jquery events in order to avoid memory leaks
+              $elm.off();
+            });
 
             function registerBeginEditEvents() {
               $elm.on('dblclick', beginEdit);
@@ -16972,6 +17008,11 @@ module.filter('px', function() {
 
                   return true;
                 });
+
+                $scope.$on('$destroy', function unbindEvents() {
+                  // unbind all jquery events in order to avoid memory leaks
+                  $elm.off();
+                });
               }
             };
           }
@@ -17115,6 +17156,11 @@ module.filter('px', function() {
                   }
                   return true;
                 });
+
+                $scope.$on('$destroy', function unbindEvents() {
+                  // unbind jquery events to prevent memory leaks
+                  $elm.off();
+                });
               }
             };
           }
@@ -17207,7 +17253,7 @@ module.filter('px', function() {
                   }
                 };
 
-                $elm[0].addEventListener('change', handleFileSelect, false);  // TODO: why the false on the end?  Google
+                $elm[0].addEventListener('change', handleFileSelect, false);
 
                 $scope.$on(uiGridEditConstants.events.BEGIN_CELL_EDIT, function () {
                   $elm[0].focus();
@@ -17217,13 +17263,17 @@ module.filter('px', function() {
                     $scope.$emit(uiGridEditConstants.events.END_CELL_EDIT);
                   });
                 });
+
+                $scope.$on('$destroy', function unbindEvents() {
+                  // unbind jquery events to prevent memory leaks
+                  $elm.off();
+                  $elm[0].removeEventListener('change', handleFileSelect, false);
+                });
               }
             };
           }
         };
       }]);
-
-
 })();
 
 (function () {
@@ -22386,6 +22436,8 @@ module.filter('px', function() {
                     movingElm.css({'width': reducedWidth + 'px'});
                   }
                 };
+
+                $scope.$on('$destroy', offAllEvents);
               }
             }
           };
@@ -25967,6 +26019,10 @@ module.filter('px', function() {
               window.setTimeout(function () { evt.target.onselectstart = null; }, 0);
             }
           }
+
+          $scope.$on('$destroy', function unbindEvents() {
+            $elm.off();
+          });
         }
       };
     }]);
@@ -28883,7 +28939,7 @@ angular.module('ui.grid').run(['$templateCache', function($templateCache) {
 
 }]);
 
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 /**
  * State-based routing for AngularJS
  * @version v0.3.2
@@ -33493,7 +33549,7 @@ angular.module('ui.router.state')
   .filter('isState', $IsStateFilter)
   .filter('includedByState', $IncludedByStateFilter);
 })(window, window.angular);
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 /**
  * @license AngularJS v1.6.1
  * (c) 2010-2016 Google, Inc. http://angularjs.org
@@ -66476,11 +66532,11 @@ $provide.value("$locale", {
 })(window);
 
 !window.angular.$$csp().noInlineStyle && window.angular.element(document.head).prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\\:form{display:block;}.ng-animate-shim{visibility:hidden;}.ng-anchor{position:absolute;}</style>');
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 require('./angular');
 module.exports = angular;
 
-},{"./angular":3}],5:[function(require,module,exports){
+},{"./angular":4}],6:[function(require,module,exports){
 //! moment.js
 //! version : 2.17.1
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors
@@ -70783,7 +70839,7 @@ return hooks;
 
 })));
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 'use strict';
 
 var _angular = require('angular');
@@ -70832,8 +70888,21 @@ _angular2.default.module('pensiones', ["ui.router", "ui.grid", "ui.grid.autoResi
                 return $http.get("/personas");
             }
         },
-        controller: function controller(personasService) {
+        controller: function controller(personasService, $http, $stateParams) {
             this.personas = personasService.data;
+            this.delete = function (persona) {
+                var that = this;
+                $http({
+                    method: 'POST',
+                    url: '/personas/borrar/' + $stateParams.idPersona,
+                    data: { id: persona[1] }
+                }).then(function () {
+                    var index = that.personas.indexOf(persona);
+                    if (index != -1) {
+                        that.personas.splice(index, 1);
+                    }
+                });
+            };
         },
         controllerAs: "personasCtrl"
 
@@ -70927,6 +70996,15 @@ _angular2.default.module('pensiones', ["ui.router", "ui.grid", "ui.grid.autoResi
         },
 
         controller: function controller(personaService, $state, $http, $stateParams, $scope) {
+            this.delete = function () {
+                $http({
+                    method: 'POST',
+                    url: '/personas/borrar/' + $stateParams.idPersona,
+                    data: { id: this.persona.documento }
+                }).then(function () {
+                    $state.go('personas', {});
+                });
+            };
             this.gridOptions = {
                 enableSorting: false,
                 headerCellClass: 'text-justify',
@@ -71067,4 +71145,4 @@ _angular2.default.module('pensiones', ["ui.router", "ui.grid", "ui.grid.autoResi
     };
 });
 
-},{"angular":4,"angular-ui-grid":1,"angular-ui-router":2,"moment":5}]},{},[6]);
+},{"angular":5,"angular-ui-grid":1,"angular-ui-router":3,"moment":6}]},{},[7]);

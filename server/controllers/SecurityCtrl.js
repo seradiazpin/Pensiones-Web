@@ -4,7 +4,6 @@
 const passport = require('passport');
 const expressSession = require('express-session');
 const security = require('express').Router();
-const mongoUtil = require("../mongoUtil");
 const bCrypt = require('bcrypt-nodejs');
 /*
 security.use(expressSession({secret: 'mySecretKey'}));

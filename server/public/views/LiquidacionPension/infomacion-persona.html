@@ -2,7 +2,7 @@
     <h1>Informacion Usuario</h1>
     <div class="col-lg-12 well">
         <a class="btn btn-info" ng-click="personCtrl.editConfirm(personCtrl.persona)">{{personCtrl.edit ? "Guardar" : "Editar"}}</a>
-        <a class="btn btn-danger" ng-class="{'no-visible':personCtrl.edit, 'display-el':personCtrl.edit}">Eliminar</a>
+        <a class="btn btn-danger" ng-class="{'no-visible':personCtrl.edit, 'display-el':personCtrl.edit}" ng-click="personCtrl.delete()">Eliminar</a>
         <a class="btn btn-danger" ng-class="{'no-visible':!personCtrl.edit, 'display-el':personCtrl.edit}" ng-click="personCtrl.cancelar()">Cancelar</a>
         <div class="row" ng-class="{'no-visible':personCtrl.edit, 'display-el':!personCtrl.edit}">
             <div class="row"></div>

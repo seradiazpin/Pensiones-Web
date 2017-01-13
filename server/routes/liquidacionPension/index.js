@@ -11,4 +11,5 @@ person.get('/', lqPension.getPersons);
 person.get('/:documento', lqPension.getPerson);
 person.post('/nueva',jsonParser,lqPension.addPerson);
 person.post('/editar/:documento',jsonParser,lqPension.editPerson);
+person.post('/borrar/:documento',jsonParser,lqPension.deletePerson);
 module.exports = person;
