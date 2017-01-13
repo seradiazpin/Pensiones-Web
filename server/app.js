@@ -5,10 +5,8 @@
 
 const express = require("express");
 const app = express();
-const mongoUtil = require("./mongoUtil");
 const routes = require('./routes');
-
-mongoUtil.connect();
+const conect = require("./mongoUtil");
 
 app.set('port', (process.env.PORT || 5000));
 app.use(express.static(__dirname + "/public"));
