@@ -41,6 +41,7 @@ exports.addPerson = (request, response) => {
         if(err){
             response.sendStatus(400);
         }
+
         response.sendStatus(201);
     });
 };

@@ -70946,16 +70946,48 @@ _angular2.default.module('pensiones', ["ui.router", "ui.grid", "ui.grid.autoResi
                         row.error = true;
                         this.errorData.errorNumber++;
                     }
+                    if (row.fechaDesde.substring(3, 5) === "04" || row.fechaDesde.substring(3, 5) === "06" || row.fechaDesde.substring(3, 5) === "09" || row.fechaDesde.substring(3, 5) === "11") {
+                        if (row.fechaDesde.substring(0, 2) === "31") {
+                            row.fechaDesde = row.fechaDesde.replace("31", "30");
+                        }
+                    }
+                    if (row.fechaHasta.substring(3, 5) === "04" || row.fechaHasta.substring(3, 5) === "06" || row.fechaHasta.substring(3, 5) === "09" || row.fechaHasta.substring(3, 5) === "11") {
+
+                        if (row.fechaHasta.substring(0, 2) === "31") {
+                            row.fechaHasta = row.fechaHasta.replace("31", "30");
+                        }
+                    }
+
                     if (i > 0) {
                         var lastRow = data[i - 1];
-                        if (!this.mayorFecha(row.fechaDesde, lastRow.fechaHasta)) {
+                        if (row.fechaDesde === lastRow.fechaDesde && lastRow.fechaHasta === row.fechaHasta) {
+                            var d1 = lastRow.IBC.replace("$", "").replace(".", "").replace(",", ".");
+                            var d2 = row.IBC.replace("$", "").replace(".", "").replace(",", ".");
+                            lastRow.IBC = +d1 + +d2;
+                            data.splice(i, 1);
+                            if (lastRow.error) {
+                                row.error = false;
+                                lastRow.error = false;
+                            }
+                            row = data[i];
+                            lastRow = data[i - 1];
+                        }
+                        if (!this.mayorFecha(row.fechaDesde, lastRow.fechaDesde)) {
+                            var date = moment(row.fechaDesde, "DD/MM/YYYY");
+                            var date2 = moment(lastRow.fechaHasta, "DD/MM/YYYY");
+                            console.log("ECHAS " + row.fechaDesde + ", " + lastRow.fechaHasta);
+                            console.log("DIA " + date.month());
+                            console.log("DIA " + date2.month());
+                            lastRow.error = true;
                             row.error = true;
                             this.errorData.errorNumber++;
+                            console.log("Error con fecha anterior: " + i);
                         }
 
-                        if (!this.mayorFecha(row.fechaDesde, lastRow.fechaDesde)) {
-                            lastRow.error = true;
+                        if (!this.mayorFecha(row.fechaHasta, lastRow.fechaDesde)) {
+                            row.error = true;
                             this.errorData.errorNumber++;
+                            console.log("Error con fecha actual: " + i);
                         }
                     }
                 }
