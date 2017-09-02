@@ -1,19 +1,10 @@
 /**
  * Created by sergiodiazpinilla on 10/01/17.
+ *
  */
 
-"use strict";
-let moment = require("moment");
-
-class LiquidadorPension{
-    constructor(persona) {
-        this.persona = persona || new Persona("nombre", 1234, "Masculino", "NOREGIMEN");
-        this.datosDecision = this.persona.datosDecision;
-        this.datosLiquidacion = this.persona.datosLiquidacion;
-        this.fechatr = "1/4/1994";
-        this.fechatr2 = "25/7/2003";
-        this.regimentr = false;
-        this.ipcData = {
+/**
+ * {
             "1968": 785.70175914,
             "1969": 738.02532326,
             "1970": 677.70920410,
@@ -60,8 +51,28 @@ class LiquidadorPension{
             "2011": 1.08322476,
             "2012": 1.04427336,
             "2013": 1.01940000,
-            "2014": 1.00000000
+            "2014": 1.16554772,
+            "2015": 1.12439487,
+            "2016": 1.05310000,
+            "2017": 1.00000000
         };
+ */
+
+"use strict";
+let moment = require("moment");
+let CalcularIPC = require("./CalcularIPC").CalcularIPC;
+
+class LiquidadorPension{
+    constructor(persona) {
+        let calcipc = new CalcularIPC();
+        calcipc.factorAnual();
+        this.persona = persona || new Persona("nombre", 1234, "Masculino", "NOREGIMEN");
+        this.datosDecision = this.persona.datosDecision;
+        this.datosLiquidacion = this.persona.datosLiquidacion;
+        this.fechatr = "1/4/1994";
+        this.fechatr2 = "25/7/2003";
+        this.regimentr = false;
+        this.ipcData =  calcipc.IPC;
         this.decreto748 = [
             [1050, 1099, 0.78],
             [1100, 1149, 0.81],
@@ -238,7 +249,9 @@ class LiquidadorPension{
             2012: 566700.0,
             2013: 589500.0,
             2014: 616000.0,
-            2015: 644350.0
+            2015: 644350.0,
+            2016: 689455.0,
+            2017: 737717.0
         };
     }
     calcularPension(){
@@ -461,9 +474,17 @@ class LiquidadorPension{
         this.datosLiquidacion.valorPensionDecreto = this.datosLiquidacion.pIBL10A * porcentajepension;
     }
     ley797(){
-        let yeardata = this.leydata[moment(this.persona.fechaLiquidacion,"DD/MM/YYYY").year()];
-        console.log(this.persona.fechaLiquidacion);
-        console.log("Year" + moment(this.persona.fechaLiquidacion,"DD/MM/YYYY").year());
+        // Despues del 2015 todas son iguales
+        let year = moment(this.persona.fechaLiquidacion,"DD/MM/YYYY").year();
+        let yeardata = null;
+        if(year >=2015){
+            yeardata = this.leydata[2015];
+        }else{
+            yeardata = this.leydata[year];
+        }
+        //Para ver el año del IPC TODO
+        //console.log(this.persona.fechaLiquidacion);
+        //console.log("Year" + moment(this.persona.fechaLiquidacion,"DD/MM/YYYY").year());
         let porcentajeley = 0;
         for(let i = 0;i< yeardata.length;i++){
             if(this.datosDecision.totalSemanasCotizadas >= yeardata[i][0] && this.datosDecision.totalSemanasCotizadas <=yeardata[i][1]){
