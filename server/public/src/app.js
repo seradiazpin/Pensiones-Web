@@ -95,6 +95,9 @@ angular.module('pensiones',["ui.router","ui.grid", "ui.grid.autoResize", 'ui.gri
                     this.validarTabla = function (data) {
                         this.errorData.mensage = "";
                         this.errorData.errorNumber = 0;
+                        if (data[data.length-1].fechaDesde === "") {
+                            data.pop()
+                        };
                         for(let i = 0;i < data.length;i++){
                             let row = data[i];
                             if(this.mayorFecha(row.fechaDesde,data[data.length-1].fechaDesde)){

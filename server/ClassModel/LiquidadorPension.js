@@ -444,7 +444,7 @@ class LiquidadorPension{
             totalibl10 += row.IBLtlv;
             diasDiezYears += row.diasEntre;
             if(diasDiezYears === 3650){
-                totalibl10 = (totalibl10/diasDiezYears);
+                //totalibl10 = (totalibl10/diasDiezYears);
                 break;
             }
             if(diasDiezYears > 3650){
@@ -490,7 +490,7 @@ class LiquidadorPension{
         //console.log("Year" + moment(this.persona.fechaLiquidacion,"DD/MM/YYYY").year());
         let porcentajeley = 0;
         for(let i = 0;i< yeardata.length;i++){
-            if(this.datosDecision.totalSemanasCotizadas >= yeardata[i][0] && this.datosDecision.totalSemanasCotizadas <=yeardata[i][1]){
+            if((this.datosDecision.totalSemanasCotizadas >= yeardata[i][0] && this.datosDecision.totalSemanasCotizadas <=yeardata[i][1]) || (this.datosDecision.totalSemanasCotizadas >= yeardata[i][0] && yeardata[i][1] === 0)){
                 porcentajeley = yeardata[i][2];
                 break;
             }

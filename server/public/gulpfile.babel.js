@@ -2,7 +2,6 @@ import gulp from "gulp";
 import browserify from "browserify";
 import source from "vinyl-source-stream";
 
-gulp.task("default", ["transpile"]);
 
 gulp.task("transpile", () => {
 
@@ -19,8 +18,12 @@ gulp.task("transpile", () => {
 });
 
 
+gulp.task("default", gulp.series("transpile"));
 
-gulp.task("watch", ["transpile"], () => {
-  gulp.watch("src/**/*", ["transpile"]);
-});
+
+
+
+gulp.task("watch", gulp.series("transpile", () => {
+  gulp.watch("src/**/*", gulp.series("transpile"));
+}));
 

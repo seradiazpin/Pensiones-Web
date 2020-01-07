@@ -32,7 +32,7 @@ exports.addPerson = (request, response) => {
     let newPerson = request.body.persona || {};
     let newPersonClass = new Persona(newPerson.nombre, newPerson.documento, newPerson.genero,newPerson.fechaNacimiento,null,newPerson.correo,newPerson.anotaciones,newPerson.tipoCotizacion,newPerson.fechaLiquidacion);
     for(let i = 0;i<newPerson.datosPension.length;i++){
-        let ibc = S(newPerson.datosPension[i].IBC).replaceAll("$ ","").replaceAll(".","").replaceAll(",",".").replaceAll('\\\"','"').s;
+        let ibc = S(newPerson.datosPension[i].IBC).replaceAll("$","").replaceAll(".","").replaceAll(",",".").replaceAll('\\\"','"').s;
         newPersonClass.datosPension.push(new Informacion(newPerson.datosPension[i].fechaDesde,newPerson.datosPension[i].fechaHasta,ibc));
     }
     let lq = new LiquidadorPension(newPersonClass);
